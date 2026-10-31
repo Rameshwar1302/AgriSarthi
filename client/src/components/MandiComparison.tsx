@@ -204,3 +204,4 @@ export const MandiComparison: React.FC<MandiComparisonProps> = ({ data, onSelect
     </div>
   );
 };
+

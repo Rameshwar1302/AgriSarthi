@@ -213,3 +213,4 @@ export async function fetchWeatherData(lat: number, lon: number, locationName: s
     };
   }
 }
+

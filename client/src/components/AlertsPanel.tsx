@@ -133,3 +133,4 @@ export const AlertsPanel: React.FC<AlertsPanelProps> = ({
     </div>
   );
 };
+

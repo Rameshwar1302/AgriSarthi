@@ -267,3 +267,4 @@ export const SoilMetricsCard: React.FC<SoilMetricsCardProps> = ({ soil, onSoilUp
     </div>
   );
 };
+

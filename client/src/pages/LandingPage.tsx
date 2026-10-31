@@ -215,3 +215,4 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onEnterDashboard }) =>
     </div>
   );
 };
+

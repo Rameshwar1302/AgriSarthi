@@ -279,3 +279,4 @@ export const AgentExecutionTrace: React.FC<AgentExecutionTraceProps> = ({ onWork
     </div>
   );
 };
+

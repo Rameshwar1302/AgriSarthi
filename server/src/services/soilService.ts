@@ -123,3 +123,4 @@ export async function fetchSoilData(lat: number, lon: number): Promise<SoilAnaly
     };
   }
 }
+

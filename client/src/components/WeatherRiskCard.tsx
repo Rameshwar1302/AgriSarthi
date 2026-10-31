@@ -255,3 +255,4 @@ export const WeatherRiskCard: React.FC<WeatherRiskCardProps> = ({
     </div>
   );
 };
+

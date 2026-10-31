@@ -204,3 +204,4 @@ AgriSaarthi AI was built under rigorous edge-case resilience principles:
 - **AgriSaarthi Team**
 - GitHub: [Rameshwar1302](https://github.com/Rameshwar1302)
 - Built for the Hackathon: *Climate, Resource Infrastructure & Global Supply Resilience Track*.
+
