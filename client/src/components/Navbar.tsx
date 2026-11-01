@@ -1,25 +1,22 @@
 import React from 'react';
 import { useApp } from '../context/AppContext';
-import { Language } from '../types';
 import { 
   Sprout, 
-  Wifi, 
-  WifiOff, 
   Bell, 
-  Sparkles, 
   User, 
   LogOut, 
-  MapPin, 
-  ShieldCheck 
+  ShieldCheck,
+  UserPlus
 } from 'lucide-react';
 
 interface NavbarProps {
   onOpenAlerts?: () => void;
   onOpenOnboarding?: () => void;
+  onOpenAuth?: (mode: 'login' | 'register') => void;
 }
 
-export const Navbar: React.FC<NavbarProps> = ({ onOpenAlerts, onOpenOnboarding }) => {
-  const { language, setLanguage, t, user, logout, loginDemoFarmer, isOnline, dashboardData } = useApp();
+export const Navbar: React.FC<NavbarProps> = ({ onOpenAlerts, onOpenOnboarding, onOpenAuth }) => {
+  const { language, setLanguage, t, user, logout, dashboardData } = useApp();
 
   const unreadAlertsCount = dashboardData?.alerts?.length || 0;
 
@@ -37,10 +34,12 @@ export const Navbar: React.FC<NavbarProps> = ({ onOpenAlerts, onOpenOnboarding }
                 <span className="font-extrabold text-xl sm:text-2xl text-slate-900 tracking-tight">
                   {t.appName}
                 </span>
-                <span className="hidden sm:inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-emerald-100 text-emerald-800 border border-emerald-200">
-                  <ShieldCheck className="w-3.5 h-3.5 text-emerald-600" />
-                  {t.demoModeBadge}
-                </span>
+                {user && (
+                  <span className="hidden sm:inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-emerald-100 text-emerald-800 border border-emerald-200">
+                    <ShieldCheck className="w-3.5 h-3.5 text-emerald-600" />
+                    <span>{user.name.split(' ')[0]}</span>
+                  </span>
+                )}
               </div>
               <p className="text-xs text-slate-500 hidden md:block font-medium">{t.appSubtitle}</p>
             </div>
@@ -82,45 +81,54 @@ export const Navbar: React.FC<NavbarProps> = ({ onOpenAlerts, onOpenOnboarding }
 
           {/* Right Controls */}
           <div className="flex items-center gap-2">
-            {/* Notification Bell */}
-            <button
-              onClick={onOpenAlerts}
-              className="relative p-2.5 rounded-xl text-slate-600 hover:text-emerald-700 hover:bg-slate-100 transition"
-              aria-label="Alerts"
-              title="इशारे (Alerts)"
-            >
-              <Bell className="w-5 h-5 sm:w-6 sm:h-6" />
-              {unreadAlertsCount > 0 && (
-                <span className="absolute top-1 right-1 flex h-4 w-4 items-center justify-center rounded-full bg-red-500 text-[10px] font-bold text-white ring-2 ring-white animate-pulse">
-                  {unreadAlertsCount}
-                </span>
-              )}
-            </button>
-
-            {/* Quick Demo Button / Profile */}
             {!user ? (
-              <button
-                onClick={loginDemoFarmer}
-                className="flex items-center gap-1.5 px-3 sm:px-4 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs sm:text-sm font-bold shadow-md shadow-emerald-600/30 transition transform active:scale-95"
-              >
-                <Sparkles className="w-4 h-4" />
-                <span className="hidden sm:inline">{t.quickDemoBtn}</span>
-                <span className="sm:hidden">डेमो</span>
-              </button>
+              <div className="flex items-center gap-2">
+                <button
+                  onClick={() => onOpenAuth?.('login')}
+                  className="px-3 sm:px-4 py-2 rounded-xl text-slate-700 hover:text-emerald-700 hover:bg-slate-100 text-xs sm:text-sm font-bold transition"
+                >
+                  {t.loginBtn || 'लॉगिन करा'}
+                </button>
+                <button
+                  onClick={() => onOpenAuth?.('register')}
+                  className="flex items-center gap-1.5 px-3.5 sm:px-4 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs sm:text-sm font-bold shadow-md shadow-emerald-600/30 transition transform active:scale-95"
+                >
+                  <UserPlus className="w-4 h-4" />
+                  <span>{t.registerBtn || 'नोंदणी करा'}</span>
+                </button>
+              </div>
             ) : (
               <div className="flex items-center gap-1.5 sm:gap-2">
+                {/* Notification Bell */}
+                <button
+                  onClick={onOpenAlerts}
+                  className="relative p-2.5 rounded-xl text-slate-600 hover:text-emerald-700 hover:bg-slate-100 transition"
+                  aria-label="Alerts"
+                  title="इशारे (Alerts)"
+                >
+                  <Bell className="w-5 h-5 sm:w-6 sm:h-6" />
+                  {unreadAlertsCount > 0 && (
+                    <span className="absolute top-1 right-1 flex h-4 w-4 items-center justify-center rounded-full bg-red-500 text-[10px] font-bold text-white ring-2 ring-white animate-pulse">
+                      {unreadAlertsCount}
+                    </span>
+                  )}
+                </button>
+
+                {/* Farmer Profile Button */}
                 <button
                   onClick={onOpenOnboarding}
                   className="flex items-center gap-1.5 px-3 py-2 rounded-xl bg-emerald-50 hover:bg-emerald-100 text-emerald-900 text-xs sm:text-sm font-bold border border-emerald-200 transition"
                   title="शेतकरी माहिती बदला (Edit Farm Profile)"
                 >
                   <User className="w-4 h-4 text-emerald-700" />
-                  <span className="max-w-[110px] truncate hidden sm:inline">{user.name.split(' ')[0]}</span>
+                  <span className="max-w-[120px] truncate hidden sm:inline">{user.name.split(' ')[0]}</span>
                 </button>
+
+                {/* Logout Button */}
                 <button
                   onClick={logout}
-                  className="p-2 rounded-xl text-slate-400 hover:text-red-600 hover:bg-red-50 transition"
-                  title="Logout"
+                  className="p-2.5 rounded-xl text-slate-400 hover:text-red-600 hover:bg-red-50 transition"
+                  title="लॉगआउट (Logout)"
                 >
                   <LogOut className="w-4 h-4" />
                 </button>

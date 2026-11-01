@@ -20,7 +20,8 @@ import {
   Bot,
   Mic,
   CheckCircle2,
-  ListTodo
+  ListTodo,
+  Sprout
 } from 'lucide-react';
 
 interface DashboardPageProps {
@@ -28,7 +29,7 @@ interface DashboardPageProps {
 }
 
 export const DashboardPage: React.FC<DashboardPageProps> = ({ onOpenOnboarding }) => {
-  const { dashboardData, isLoading, refreshDashboard, t } = useApp();
+  const { dashboardData, isLoading, refreshDashboard, t, user, language } = useApp();
   const [activeTab, setActiveTab] = useState<'overview' | 'weather' | 'mandi' | 'crop' | 'assistant'>('overview');
 
   if (isLoading && !dashboardData) {
@@ -44,6 +45,7 @@ export const DashboardPage: React.FC<DashboardPageProps> = ({ onOpenOnboarding }
 
   const farm = dashboardData?.farm;
   const crop = dashboardData?.crop;
+  const farmerName = user?.name || dashboardData?.farmer?.name || 'शेतकरी मित्र';
 
   return (
     <div className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 py-5 space-y-6 pb-24">
@@ -52,28 +54,28 @@ export const DashboardPage: React.FC<DashboardPageProps> = ({ onOpenOnboarding }
         <div className="space-y-1.5 z-10">
           <div className="flex items-center gap-2">
             <span className="px-3 py-1 rounded-full text-xs font-bold bg-emerald-900/70 text-emerald-200 border border-emerald-400/30">
-              {farm?.name || 'शिंदे शेतशिवार'}
+              {farm?.name || (language === 'mr' ? `${farmerName.split(' ')[0]} यांचे शेत` : `${farmerName.split(' ')[0]}'s Farm`)}
             </span>
             <span className="text-xs text-emerald-200 font-medium">
-              तालुका: {farm?.location.split(',')[1] || 'औसा (लातूर)'}
+              {farm?.location ? (farm.location.includes(',') ? `तालुका: ${farm.location.split(',')[1].trim()}` : farm.location) : (language === 'mr' ? 'स्थान: महाराष्ट्र' : 'Location: Maharashtra')}
             </span>
           </div>
 
           <h1 className="text-2xl sm:text-3xl font-extrabold tracking-tight">
-            {dashboardData?.greeting || 'राम राम! आजचा कृषी सल्ला'}
+            {dashboardData?.greeting || (language === 'mr' ? `राम राम, ${farmerName}!` : `Welcome, ${farmerName}!`)}
           </h1>
 
           <div className="flex flex-wrap items-center gap-2 text-xs sm:text-sm text-emerald-100 font-medium">
             <span className="flex items-center gap-1">
               <MapPin className="w-4 h-4 text-emerald-300" />
-              {farm?.location || 'लातूर, महाराष्ट्र'}
+              {farm?.location || (language === 'mr' ? 'महाराष्ट्र' : 'Maharashtra')}
             </span>
             <span>•</span>
             <span className="bg-white/20 font-bold px-2.5 py-0.5 rounded-lg text-white">
-              पीक: {crop?.name} ({crop?.stage} अवस्था)
+              {crop ? `पीक: ${crop.name} (${crop.stage} अवस्था)` : (language === 'mr' ? 'पीक निवडलेले नाही' : 'Crop Not Configured')}
             </span>
             <span>•</span>
-            <span>क्षेत्र: {farm?.area || '३.५ एकर'}</span>
+            <span>{farm?.area ? `क्षेत्र: ${farm.area}` : (language === 'mr' ? 'क्षेत्र: ३.० एकर' : 'Area: 3.0 Acre')}</span>
           </div>
         </div>
 
@@ -83,7 +85,7 @@ export const DashboardPage: React.FC<DashboardPageProps> = ({ onOpenOnboarding }
             className="flex items-center gap-1.5 px-4 py-2.5 rounded-2xl bg-white/15 hover:bg-white/25 text-white text-xs sm:text-sm font-bold border border-white/30 transition backdrop-blur-sm shadow-sm"
           >
             <Edit3 className="w-4 h-4" />
-            <span>पीक / शेत बदला</span>
+            <span>{farm ? 'पीक / शेत बदला' : 'शेताची माहिती जोडा'}</span>
           </button>
           <button
             onClick={() => refreshDashboard()}
@@ -94,6 +96,36 @@ export const DashboardPage: React.FC<DashboardPageProps> = ({ onOpenOnboarding }
           </button>
         </div>
       </div>
+
+      {/* New Farmer Setup Callout Banner */}
+      {dashboardData?.hasFarm === false && (
+        <div className="p-5 sm:p-6 rounded-3xl bg-amber-50 border-2 border-amber-300 shadow-md flex flex-col sm:flex-row items-center justify-between gap-4 animate-in fade-in">
+          <div className="flex items-start gap-3.5">
+            <div className="w-12 h-12 rounded-2xl bg-amber-500 text-white flex items-center justify-center flex-shrink-0 shadow-md">
+              <Sprout className="w-7 h-7" />
+            </div>
+            <div className="space-y-1 text-left">
+              <h2 className="text-base sm:text-lg font-extrabold text-amber-950">
+                {language === 'mr' ? 'आपल्या शेताची आणि पिकाची अचूक माहिती जोडा' : language === 'hi' ? 'अपने खेत और फसल की जानकारी जोड़ें' : 'Set Up Your Farm & Active Crop'}
+              </h2>
+              <p className="text-xs sm:text-sm text-amber-800">
+                {language === 'mr'
+                  ? 'अचूक स्थानिक हवामान, फवारणी जोखीम, माती आरोग्य आणि नजीकच्या बाजारपेठेचे दर मिळवण्यासाठी कृपया तालुका आणि चालू पीक निवडा.'
+                  : language === 'hi'
+                  ? 'सटीक स्थानीय मौसम, छिड़काव जोखिम और मंडी भाव पाने के लिए कृपया अपने खेत और फसल की जानकारी जोड़ें।'
+                  : 'Configure your taluka/village, soil type, and active crop stage to receive personalized field alerts and mandi rates.'}
+              </p>
+            </div>
+          </div>
+          <button
+            onClick={onOpenOnboarding}
+            className="w-full sm:w-auto px-5 py-3 rounded-2xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs sm:text-sm shadow-md transition transform active:scale-95 whitespace-nowrap flex items-center justify-center gap-2"
+          >
+            <Edit3 className="w-4 h-4" />
+            <span>{language === 'mr' ? 'माहिती भरा (Set Details)' : language === 'hi' ? 'जानकारी दर्ज करें' : 'Set Up Farm'}</span>
+          </button>
+        </div>
+      )}
 
       {/* 1. ULTRA-INTUITIVE INSTANT DECISION CARDS (Spray, Rain, Irrigation, Mandi) */}
       <FarmerQuickStatus dashboardData={dashboardData} />
@@ -167,7 +199,7 @@ export const DashboardPage: React.FC<DashboardPageProps> = ({ onOpenOnboarding }
           {/* Main 2-column layout */}
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
             <WeatherRiskCard
-              weather={dashboardData?.weather}
+              weather={dashboardData?.weather || undefined}
               risks={dashboardData?.weatherRisks}
               cropName={crop?.name}
               cropStage={crop?.stage}
@@ -182,8 +214,8 @@ export const DashboardPage: React.FC<DashboardPageProps> = ({ onOpenOnboarding }
           </div>
 
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            <MandiComparison data={dashboardData?.mandiPrices} />
-            <SoilMetricsCard soil={dashboardData?.soil} onSoilUpdated={refreshDashboard} />
+            <MandiComparison data={dashboardData?.mandiPrices || undefined} />
+            <SoilMetricsCard soil={dashboardData?.soil || undefined} onSoilUpdated={refreshDashboard} />
           </div>
 
           {/* Autonomous Agent Workflow Engine */}
@@ -195,7 +227,7 @@ export const DashboardPage: React.FC<DashboardPageProps> = ({ onOpenOnboarding }
       {activeTab === 'weather' && (
         <div className="space-y-6">
           <WeatherRiskCard
-            weather={dashboardData?.weather}
+            weather={dashboardData?.weather || undefined}
             risks={dashboardData?.weatherRisks}
             cropName={crop?.name}
             cropStage={crop?.stage}
@@ -206,7 +238,7 @@ export const DashboardPage: React.FC<DashboardPageProps> = ({ onOpenOnboarding }
       {/* Tab 3: Dedicated Mandi Prices */}
       {activeTab === 'mandi' && (
         <div className="space-y-6">
-          <MandiComparison data={dashboardData?.mandiPrices} />
+          <MandiComparison data={dashboardData?.mandiPrices || undefined} />
         </div>
       )}
 
@@ -219,7 +251,7 @@ export const DashboardPage: React.FC<DashboardPageProps> = ({ onOpenOnboarding }
             tasks={dashboardData?.tasks}
             onTasksUpdated={refreshDashboard}
           />
-          <SoilMetricsCard soil={dashboardData?.soil} onSoilUpdated={refreshDashboard} />
+          <SoilMetricsCard soil={dashboardData?.soil || undefined} onSoilUpdated={refreshDashboard} />
         </div>
       )}
 

@@ -29,19 +29,23 @@ export const FarmerQuickStatus: React.FC<FarmerQuickStatusProps> = ({ dashboardD
   const risks = dashboardData.weatherRisks || [];
   const crop = dashboardData.crop;
 
+  if (!weather || !mandi) {
+    return null;
+  }
+
   // Evaluate Spraying Decision
-  const rain48h = (weather.daily.slice(0, 2) || []).reduce((acc, curr) => acc + (curr.precipitationSum || 0), 0);
-  const maxWind = Math.max(weather.current.windSpeed, weather.daily[0]?.windSpeedMax || 0);
+  const rain48h = (weather.daily?.slice(0, 2) || []).reduce((acc, curr) => acc + (curr?.precipitationSum || 0), 0);
+  const maxWind = Math.max(weather.current?.windSpeed || 0, weather.daily?.[0]?.windSpeedMax || 0);
   const canSpray = rain48h < 5 && maxWind < 18;
 
   // Evaluate Irrigation Decision
-  const needsIrrigation = rain48h < 2 && weather.daily.every(d => d.precipitationSum < 1);
+  const needsIrrigation = rain48h < 2 && (weather.daily || []).every(d => (d?.precipitationSum || 0) < 1);
 
   // Top Mandi Price
   const topMandi = mandi.highestModalMandi || {
-    market: 'Latur APMC',
-    modalPrice: 4580,
-    differenceFromAverage: 120
+    market: 'APMC Market',
+    modalPrice: mandi.averageModalPrice || 4500,
+    differenceFromAverage: 0
   };
 
   const speakDailySummary = () => {

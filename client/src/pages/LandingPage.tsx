@@ -7,25 +7,21 @@ import {
   FlaskConical, 
   Bot, 
   ArrowRight, 
-  CheckCircle, 
-  Sparkles, 
-  ShieldCheck, 
+  UserPlus,
+  LogIn,
   Languages,
   Mic,
-  CalendarCheck
+  CalendarCheck,
+  Sparkles
 } from 'lucide-react';
 
 interface LandingPageProps {
   onEnterDashboard: () => void;
+  onOpenAuth: (mode: 'login' | 'register') => void;
 }
 
-export const LandingPage: React.FC<LandingPageProps> = ({ onEnterDashboard }) => {
-  const { language, setLanguage, t, loginDemoFarmer } = useApp();
-
-  const handleDemoClick = async () => {
-    await loginDemoFarmer();
-    onEnterDashboard();
-  };
+export const LandingPage: React.FC<LandingPageProps> = ({ onEnterDashboard, onOpenAuth }) => {
+  const { language, setLanguage, t } = useApp();
 
   return (
     <div className="min-h-screen bg-slate-50 flex flex-col selection:bg-emerald-500 selection:text-white">
@@ -73,22 +69,27 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onEnterDashboard }) =>
               {t.tagline} Multilingual agronomist assistant integrating Open-Meteo forecasts, AGMARKNET market prices, ISRIC SoilGrids, and deterministic risk rules into actionable farming tasks.
             </p>
 
-            {/* Call to Actions */}
-            <div className="flex flex-col sm:flex-row items-center justify-center gap-3 pt-4">
+            {/* Call to Actions - Genuine Auth Triggers */}
+            <div className="flex flex-col sm:flex-row items-center justify-center gap-3.5 pt-4">
               <button
-                onClick={handleDemoClick}
-                className="w-full sm:w-auto px-8 py-4 rounded-2xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-base shadow-lg shadow-emerald-600/30 flex items-center justify-center gap-2 transition transform hover:-translate-y-0.5 active:translate-y-0"
+                onClick={() => onOpenAuth('register')}
+                className="w-full sm:w-auto px-8 py-4 rounded-2xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-base shadow-lg shadow-emerald-600/30 flex items-center justify-center gap-2.5 transition transform hover:-translate-y-0.5 active:translate-y-0"
               >
-                <Sparkles className="w-5 h-5" />
-                <span>{t.quickDemoBtn}</span>
+                <UserPlus className="w-5 h-5" />
+                <span>
+                  {language === 'mr' ? 'नवीन शेतकरी नोंदणी करा' : language === 'hi' ? 'नया किसान पंजीकरण' : 'Register as Farmer'}
+                </span>
                 <ArrowRight className="w-5 h-5 ml-1" />
               </button>
 
               <button
-                onClick={onEnterDashboard}
-                className="w-full sm:w-auto px-6 py-4 rounded-2xl bg-white hover:bg-slate-100 text-slate-800 font-bold text-base border border-slate-200 transition shadow-sm"
+                onClick={() => onOpenAuth('login')}
+                className="w-full sm:w-auto px-7 py-4 rounded-2xl bg-white hover:bg-slate-100 text-slate-800 font-bold text-base border border-slate-200 transition shadow-sm flex items-center justify-center gap-2"
               >
-                {t.dashboard}
+                <LogIn className="w-5 h-5 text-emerald-600" />
+                <span>
+                  {language === 'mr' ? 'खात्यात लॉगिन करा' : language === 'hi' ? 'खाते में लॉगिन करें' : 'Farmer Login'}
+                </span>
               </button>
             </div>
 
@@ -181,26 +182,29 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onEnterDashboard }) =>
         </div>
       </section>
 
-      {/* Demo Walkthrough Story Section */}
+      {/* Case Study / Impact Section */}
       <section className="py-16 bg-slate-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="p-8 sm:p-10 rounded-3xl bg-emerald-900 text-white shadow-xl relative overflow-hidden">
             <div className="max-w-3xl space-y-4">
               <span className="text-xs font-bold uppercase tracking-widest text-emerald-300">
-                Hackathon Judge Walkthrough
+                Hackathon Judge & Agronomist Context
               </span>
               <h2 className="text-2xl sm:text-3xl font-extrabold tracking-tight">
-                Case Study: Anand Rao Shinde, Maharashtra Soybean Farmer
+                Empowering Indian Farmers with Resilient AI Guidance
               </h2>
               <p className="text-sm text-emerald-100 leading-relaxed">
-                Witness an end-to-end autonomous workflow in Latur: when an unseasonal heavy rain spell of 52 mm is detected during the delicate flowering stage, AgriSaarthi alerts the farmer to unclog furrows, halts pesticide spraying, and pinpoints Latur APMC modal prices at ₹4,580/quintal.
+                From unseasonal heavy downpours during critical flowering stages to sudden price fluctuations in regional APMC mandis, AgriSaarthi AI automates the agronomy decision loop. Connect your farm location, soil status, and crop stage to receive immediate protective actions.
               </p>
               <div className="pt-2">
                 <button
-                  onClick={handleDemoClick}
-                  className="px-6 py-3 rounded-xl bg-white text-emerald-950 font-bold text-sm shadow hover:bg-emerald-50 transition"
+                  onClick={() => onOpenAuth('register')}
+                  className="px-6 py-3.5 rounded-xl bg-white text-emerald-950 font-bold text-sm shadow hover:bg-emerald-50 transition flex items-center gap-2"
                 >
-                  Launch Demonstration Dashboard
+                  <UserPlus className="w-4 h-4 text-emerald-700" />
+                  <span>
+                    {language === 'mr' ? 'आताच नोंदणी करा व शेत जोडा' : language === 'hi' ? 'अभी पंजीकरण करें और खेत जोड़ें' : 'Register & Configure Your Farm'}
+                  </span>
                 </button>
               </div>
             </div>
@@ -215,4 +219,3 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onEnterDashboard }) =>
     </div>
   );
 };
-

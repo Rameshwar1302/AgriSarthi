@@ -148,7 +148,7 @@ export const VoiceAdvisoryChat: React.FC = () => {
       const response = await api.askChatAdvisory(
         textToSend,
         language,
-        dashboardData?.crop.name || 'Soybean'
+        dashboardData?.crop?.name || 'Soybean'
       );
 
       const assistantEntry: ChatEntry = {

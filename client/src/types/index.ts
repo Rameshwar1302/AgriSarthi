@@ -190,15 +190,16 @@ export interface StructuredAdvisory {
 }
 
 export interface DashboardData {
+  hasFarm?: boolean;
   greeting: string;
   language: Language;
   farmer: UserProfile;
-  farm: FarmDetails;
-  crop: CropDetails;
-  weather: WeatherData;
-  weatherRisks: EvaluatedRisk[];
-  mandiPrices: MandiComparisonResult;
-  soil: SoilData;
+  farm?: FarmDetails | null;
+  crop?: CropDetails | null;
+  weather?: WeatherData | null;
+  weatherRisks?: EvaluatedRisk[];
+  mandiPrices?: MandiComparisonResult | null;
+  soil?: SoilData | null;
   tasks: FarmTask[];
   alerts: AlertNotification[];
   timestamp: string;

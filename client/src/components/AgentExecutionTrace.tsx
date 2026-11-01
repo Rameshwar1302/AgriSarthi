@@ -40,8 +40,8 @@ export const AgentExecutionTrace: React.FC<AgentExecutionTraceProps> = ({ onWork
 
     try {
       const res = await api.runAgent({
-        cropName: dashboardData?.crop.name || 'Soybean',
-        cropStage: dashboardData?.crop.stage || 'Flowering',
+        cropName: dashboardData?.crop?.name || 'Soybean',
+        cropStage: dashboardData?.crop?.stage || 'Flowering',
         language: language,
         question: 'Run full autonomous agritech screening workflow for current weather and market conditions.'
       });

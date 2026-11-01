@@ -14,7 +14,8 @@ interface AppContextType {
   isLoading: boolean;
   error: string | null;
   refreshDashboard: () => Promise<void>;
-  loginDemoFarmer: () => Promise<void>;
+  login: (emailOrMobile: string, password: string) => Promise<void>;
+  register: (name: string, emailOrMobile: string, password: string, preferredLanguage: Language) => Promise<void>;
   logout: () => void;
 }
 
@@ -56,40 +57,64 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   };
 
   const refreshDashboard = async () => {
+    const currentToken = localStorage.getItem('agrisaarthi_token');
+    if (!currentToken) {
+      setDashboardData(null);
+      return;
+    }
+
     setIsLoading(true);
     setError(null);
     try {
       const data = await api.getDashboard(language);
       setDashboardData(data);
+      if (data.farmer) {
+        setUser(data.farmer);
+        localStorage.setItem('agrisaarthi_user', JSON.stringify(data.farmer));
+      }
     } catch (err: any) {
       console.warn('[AppContext] Failed to refresh dashboard:', err.message);
-      setError(err.message || 'Failed to load dashboard');
+      if (err.response?.status === 401) {
+        logout();
+      } else {
+        setError(err.message || 'Failed to load dashboard');
+      }
     } finally {
       setIsLoading(false);
     }
   };
 
   useEffect(() => {
-    refreshDashboard();
-  }, [language]);
+    if (token) {
+      refreshDashboard();
+    }
+  }, [language, token]);
 
-  const loginDemoFarmer = async () => {
+  const login = async (emailOrMobile: string, password: string) => {
+    setIsLoading(true);
     try {
-      const res = await api.login('9876543210', 'password123');
+      const res = await api.login(emailOrMobile, password);
       setUser(res.user);
       setToken(res.token);
+      if (res.user.preferredLanguage) {
+        setLanguage(res.user.preferredLanguage);
+      }
       await refreshDashboard();
-    } catch (err) {
-      console.warn('Demo login via API failed, loading local demo state');
-      const fallbackUser: UserProfile = {
-        id: 'usr_demo_anand_shinde',
-        name: 'Anand Rao Shinde (आनंदराव शिंदे)',
-        emailOrMobile: '9876543210',
-        preferredLanguage: 'mr'
-      };
-      setUser(fallbackUser);
-      localStorage.setItem('agrisaarthi_user', JSON.stringify(fallbackUser));
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const register = async (name: string, emailOrMobile: string, password: string, preferredLanguage: Language) => {
+    setIsLoading(true);
+    try {
+      const res = await api.register({ name, emailOrMobile, password, preferredLanguage });
+      setUser(res.user);
+      setToken(res.token);
+      setLanguage(preferredLanguage);
       await refreshDashboard();
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -98,6 +123,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     localStorage.removeItem('agrisaarthi_user');
     setToken(null);
     setUser(null);
+    setDashboardData(null);
   };
 
   const t = translations[language] || translations.mr;
@@ -115,7 +141,8 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         isLoading,
         error,
         refreshDashboard,
-        loginDemoFarmer,
+        login,
+        register,
         logout,
       }}
     >
@@ -131,4 +158,3 @@ export const useApp = () => {
   }
   return context;
 };
-
