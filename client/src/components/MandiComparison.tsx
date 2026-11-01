@@ -145,19 +145,19 @@ export const MandiComparison: React.FC<MandiComparisonProps> = ({ data, onSelect
         {/* Comparison Table Across Available Mandis */}
         <div className="space-y-2">
           <div className="text-xs font-bold uppercase tracking-wider text-slate-500 flex items-center justify-between">
-            <span>Regional Mandi Price Comparison</span>
-            <span className="text-[11px] font-normal text-slate-400">{records.length} mandis reporting</span>
+            <span>{t.regionalMandiComp}</span>
+            <span className="text-[11px] font-normal text-slate-400">{records.length} {t.mandisReporting}</span>
           </div>
 
           <div className="overflow-x-auto border border-slate-100 rounded-xl">
             <table className="w-full text-left text-xs">
               <thead className="bg-slate-50 text-slate-500 font-semibold border-b border-slate-100">
                 <tr>
-                  <th className="px-3.5 py-2.5">Market / APMC</th>
-                  <th className="px-3 py-2.5">District</th>
-                  <th className="px-3 py-2.5">Min (₹)</th>
-                  <th className="px-3 py-2.5">Max (₹)</th>
-                  <th className="px-3.5 py-2.5 text-right">Modal Price (₹)</th>
+                  <th className="px-3.5 py-2.5">{t.marketAPMC}</th>
+                  <th className="px-3 py-2.5">{t.districtCol}</th>
+                  <th className="px-3 py-2.5">{t.minPriceCol}</th>
+                  <th className="px-3 py-2.5">{t.maxPriceCol}</th>
+                  <th className="px-3.5 py-2.5 text-right">{t.modalPriceCol}</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-100 text-slate-700">

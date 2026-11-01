@@ -330,9 +330,10 @@ router.get('/weather/risk', async (req: Request, res: Response) => {
   const lon = Number(req.query.lon) || 76.5000;
   const crop = (req.query.crop as string) || 'Soybean';
   const stage = (req.query.stage as string) || 'Flowering';
+  const lang = (req.query.lang as 'mr' | 'hi' | 'en') || 'mr';
 
   const weather = await fetchWeatherData(lat, lon);
-  const risks = evaluateWeatherRisks(crop, stage, weather);
+  const risks = evaluateWeatherRisks(crop, stage, weather, lang);
 
   res.json({
     crop,
@@ -766,6 +767,8 @@ router.get('/dashboard', authenticate, async (req: AuthRequest, res: Response) =
       if (!crop) crop = memoryStore.crops.find(c => c.farmId.toString() === farm._id.toString());
     }
 
+    const reqLang = (req.query.lang as 'mr' | 'hi' | 'en') || user.preferredLanguage || 'mr';
+
     // If new user has not added their farm yet:
     if (!farm || !crop) {
       const lat = 18.25;
@@ -775,7 +778,7 @@ router.get('/dashboard', authenticate, async (req: AuthRequest, res: Response) =
         getMandiPrices('Soybean', 'Maharashtra', 'Latur'),
         fetchSoilData(lat, lon)
       ]);
-      const risks = evaluateWeatherRisks('Soybean', 'Flowering', weather);
+      const risks = evaluateWeatherRisks('Soybean', 'Flowering', weather, reqLang);
 
       const greetings = {
         mr: `राम राम, ${user.name}! आपल्या शेताची अचूक माहिती मिळवण्यासाठी कृपया शेताचे ठिकाण व पीक नोंदवा.`,
@@ -785,13 +788,13 @@ router.get('/dashboard', authenticate, async (req: AuthRequest, res: Response) =
 
       return res.json({
         hasFarm: false,
-        greeting: greetings[user.preferredLanguage as 'mr'|'hi'|'en'] || greetings.mr,
-        language: user.preferredLanguage || 'mr',
+        greeting: greetings[reqLang] || greetings.mr,
+        language: reqLang,
         farmer: {
           id: user._id.toString(),
           name: user.name,
           emailOrMobile: user.emailOrMobile,
-          preferredLanguage: user.preferredLanguage
+          preferredLanguage: reqLang
         },
         farm: null,
         crop: null,
@@ -806,7 +809,7 @@ router.get('/dashboard', authenticate, async (req: AuthRequest, res: Response) =
     }
 
     // User has a configured farm: fetch their live weather, mandi, and soil!
-    const lang = (req.query.lang as 'mr' | 'hi' | 'en') || user.preferredLanguage || 'mr';
+    const lang = reqLang;
     const lat = farm.latitude || 18.25;
     const lon = farm.longitude || 76.50;
 
@@ -816,7 +819,7 @@ router.get('/dashboard', authenticate, async (req: AuthRequest, res: Response) =
       fetchSoilData(lat, lon)
     ]);
 
-    const risks = evaluateWeatherRisks(crop.cropName, crop.cropStage, weather);
+    const risks = evaluateWeatherRisks(crop.cropName, crop.cropStage, weather, lang);
 
     // Tasks and Alerts
     let userTasks: any[] = [];

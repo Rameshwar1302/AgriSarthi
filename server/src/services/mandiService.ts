@@ -74,7 +74,7 @@ export async function getMandiPrices(
       const aliases = getAgmarknetAliases(commodity);
       for (const alias of aliases) {
         const url = `https://api.data.gov.in/resource/${env.AGMARKNET_RESOURCE_ID}?api-key=${env.DATA_GOV_IN_API_KEY}&format=json&filters[commodity]=${encodeURIComponent(alias)}&filters[state]=${encodeURIComponent(state)}&limit=100`;
-        const response = await axios.get(url, { timeout: 6000 });
+        const response = await axios.get(url, { timeout: 3000 });
         if (response.data?.records && Array.isArray(response.data.records) && response.data.records.length > 0) {
           records = response.data.records.map((r: any) => ({
             commodity: r.commodity || commodity,

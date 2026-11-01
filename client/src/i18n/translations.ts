@@ -17,29 +17,50 @@ export const translations: Record<Language, Record<string, string>> = {
     liveBadge: 'थेट डेटा',
     cachedBadge: 'कॅश डेटा',
     farmerGreeting: 'राम राम',
-    quickDemoBtn: 'महाराष्ट्र शेतकरी डेमो पहा',
+    quickDemoBtn: 'डेमो पहा',
     getStartedBtn: 'सुरू करा',
     loginBtn: 'लॉगिन करा',
     registerBtn: 'नोंदणी करा',
     logoutBtn: 'बाहेर पडा',
     offlineNotice: 'आपण ऑफलाइन आहात. जुना जतन केलेला डेटा दाखवला जात आहे.',
 
+    // Common labels
+    loadingIntelligence: 'कृषी माहिती लोड होत आहे...',
+    changeFarmCropBtn: 'पीक / शेत बदला',
+    addFarmDetailsBtn: 'शेताची माहिती जोडा',
+    refreshBtn: 'रिफ्रेश करा',
+    cropLabel: 'पीक',
+    stageLabel: 'अवस्था',
+    areaLabel: 'क्षेत्र',
+    blockLabel: 'तालुका',
+    stateLabel: 'राज्य',
+    locationLabel: 'स्थान',
+    noCropSelected: 'पीक निवडलेले नाही',
+    areaDefault: 'क्षेत्र: ३.० एकर',
+
     // Simplified Farmer Quick Decisions
-    quickDecisionTitle: 'आजचे महत्त्वाचे शेती निर्णय (Quick Field Decisions)',
+    quickDecisionTitle: 'आजचे महत्त्वाचे शेती निर्णय',
     sprayDecision: 'फवारणी करावी का?',
     sprayNo: 'नाही / फवारणी टाळा',
     sprayYes: 'होय, हवामान अनुकूल आहे',
     sprayReasonHeavy: 'वारा व पावसामुळे औषध वाहून जाईल, २ दिवस थांबा.',
+    calmWeatherSpraySafe: 'हवा व पाऊस शांत आहे, फवारणी करू शकता.',
     irrigationDecision: 'पाणी द्यावे का?',
     irrigationNo: 'गरज नाही (पाऊस अपेक्षित)',
     irrigationYes: 'होय, हलके पाणी द्यावे',
+    heavyRainExpected: 'मुसळधार पाऊस संभवतो',
+    lightRainExpected: 'हलका पाऊस / कोरडे हवामान',
+    maintainDrainage: 'पाण्याचा निचरा सुरळीत ठेवा.',
+    lowMoistureIrrigate: 'जमिनीतील ओलावा कमी आहे, हलके पाणी द्या.',
+    rainSavesIrrigation: 'आगामी पावसामुळे पाणी देण्याचा खर्च व वीज वाचवा.',
     mandiHighlight: 'आजचा सर्वोच्च भाव',
     drainageHighlight: 'पाण्याचा निचरा',
     drainageUrgent: 'शेतातील चर त्वरित मोकळे करा',
     listenAdvice: 'सल्ला ऐका (आवाज)',
     audioPlaying: 'बोलत आहे...',
     voiceFloatingBtn: 'माईक दाबा आणि विचारा',
-    
+    aboveAverage: 'अधिक भाव',
+
     // Tabs
     tabOverview: 'मुख्य सल्ला',
     tabWeather: 'हवामान व पाऊस',
@@ -59,6 +80,7 @@ export const translations: Record<Language, Record<string, string>> = {
     sprayHazardWarning: 'वाऱ्याचा वेग जास्त - फवारणी टाळावी',
     heatWarning: 'उष्णतेची लाट - पिकास पाण्याचा ताण',
     drainageAction: 'शेतातील चर त्वरित मोकळे करा व निचरा सुनिश्चित करा.',
+    todayText: 'आज',
 
     // Mandi
     mandiOverview: 'महाराष्ट्र बाजारभाव विश्लेषण (AGMARKNET)',
@@ -69,6 +91,13 @@ export const translations: Record<Language, Record<string, string>> = {
     lowestPrice: 'किमान मॉडेल दर',
     priceTrendChart: 'मागील १५ दिवसांमधील बाजारभाव कल (₹/क्विंटल)',
     priceUnit: '₹/क्विंटल',
+    marketAPMC: 'बाजारपेठ / APMC',
+    districtCol: 'जिल्हा',
+    minPriceCol: 'किमान (₹)',
+    maxPriceCol: 'कमाल (₹)',
+    modalPriceCol: 'मॉडेल दर (₹)',
+    regionalMandiComp: 'प्रादेशिक बाजारभाव तुलना',
+    mandisReporting: 'बाजारपेठांचे दर उपलब्ध',
 
     // Soil
     soilMetrics: 'मातीचे गुणधर्म व परीक्षण',
@@ -78,6 +107,8 @@ export const translations: Record<Language, Record<string, string>> = {
     soilTexture: 'जमिनीचा पोत',
     addManualTestBtn: '+ स्वतःचा माती अहवाल जोडा',
     kvkDisclaimer: 'अचूक खत नियोजनासाठी स्थानिक कृषी विज्ञान केंद्र (KVK) च्या माती चाचणी अहवालानुसार निर्णय घ्यावा.',
+    labTestValueTitle: 'प्रयोगशाळा माती चाचणी मूल्ये जोडा',
+    enterReportSub: 'आपल्या सॉईल हेल्थ कार्ड किंवा KVK अहवालातील अधिकृत मूल्ये भरा.',
 
     // Agent
     agentAutonomousTitle: 'स्वायत्त AI कृषी सल्लागार इंजिन (Autonomous Agent)',
@@ -88,6 +119,13 @@ export const translations: Record<Language, Record<string, string>> = {
     inputParams: 'इनपुट',
     outputData: 'आउटपुट',
     duration: 'वेळ',
+
+    // Tasks & Calendar
+    growthStageTracker: 'पिकाची वाढ अवस्था ट्रॅकर',
+    currentStageLabel: 'सध्याची अवस्था',
+    addTask: '+ काम जोडा',
+    completed: 'पूर्ण',
+    noPendingTasks: 'कोणतीही प्रलंबित कामे नाहीत. नवीन कामे तयार करण्यासाठी AI एजंट चालवा.',
 
     // Voice & Chat
     askVoicePrompt: 'माईक दाबा आणि बोला किंवा प्रश्न टाईप करा...',
@@ -117,28 +155,49 @@ export const translations: Record<Language, Record<string, string>> = {
     liveBadge: 'लाइव डेटा',
     cachedBadge: 'कैश्ड डेटा',
     farmerGreeting: 'नमस्ते',
-    quickDemoBtn: 'महाराष्ट्र किसान डेमो देखें',
+    quickDemoBtn: 'डेमो देखें',
     getStartedBtn: 'शुरू करें',
     loginBtn: 'लॉगिन',
     registerBtn: 'पंजीकरण',
     logoutBtn: 'लॉगआउट',
     offlineNotice: 'आप ऑफलाइन हैं। पहले से सहेजा गया डेटा दिखाया जा रहा है।',
 
+    // Common labels
+    loadingIntelligence: 'कृषि जानकारी लोड हो रही है...',
+    changeFarmCropBtn: 'फसल / खेत बदलें',
+    addFarmDetailsBtn: 'खेत की जानकारी जोड़ें',
+    refreshBtn: 'रिफ्रेश करें',
+    cropLabel: 'फसल',
+    stageLabel: 'चरण',
+    areaLabel: 'क्षेत्र',
+    blockLabel: 'तहसील',
+    stateLabel: 'राज्य',
+    locationLabel: 'स्थान',
+    noCropSelected: 'फसल नहीं चुनी गई',
+    areaDefault: 'क्षेत्र: ३.० एकड़',
+
     // Simplified Farmer Quick Decisions
-    quickDecisionTitle: 'आज के मुख्य कृषि निर्णय (Quick Field Decisions)',
+    quickDecisionTitle: 'आज के मुख्य कृषि निर्णय',
     sprayDecision: 'क्या छिड़काव करें?',
     sprayNo: 'नहीं / छिड़काव टालें',
     sprayYes: 'हाँ, मौसम अनुकूल है',
     sprayReasonHeavy: 'बारिश और तेज हवा से दवा बह जाएगी, 2 दिन रुकें।',
+    calmWeatherSpraySafe: 'मौसम शांत है, आप छिड़काव कर सकते हैं।',
     irrigationDecision: 'क्या सिंचाई करें?',
     irrigationNo: 'जरूरत नहीं (बारिश संभावित)',
     irrigationYes: 'हाँ, हल्की सिंचाई करें',
+    heavyRainExpected: 'भारी बारिश का अनुमान',
+    lightRainExpected: 'हल्की बारिश / सूखा मौसम',
+    maintainDrainage: 'जल निकासी ठीक रखें।',
+    lowMoistureIrrigate: 'नमी कम है, हल्की सिंचाई करें।',
+    rainSavesIrrigation: 'संभावित बारिश के कारण सिंचाई रोकें और बिजली बचाएं।',
     mandiHighlight: 'आज का उच्चतम भाव',
     drainageHighlight: 'जल निकासी',
     drainageUrgent: 'खेत की नालियां तुरंत साफ करें',
     listenAdvice: 'सलाह सुनें (आवाज)',
     audioPlaying: 'बोल रहा है...',
     voiceFloatingBtn: 'माइक दबाएं और पूछें',
+    aboveAverage: 'अधिक भाव',
 
     // Tabs
     tabOverview: 'मुख्य सलाह',
@@ -159,6 +218,7 @@ export const translations: Record<Language, Record<string, string>> = {
     sprayHazardWarning: 'तेज हवा - छिड़काव स्थगित करें',
     heatWarning: 'लू/गर्मी का प्रकोप - सिंचाई पर ध्यान दें',
     drainageAction: 'खेत की जल निकासी नालियों को तुरंत साफ करें।',
+    todayText: 'आज',
 
     // Mandi
     mandiOverview: 'मंडी भाव तुलना (AGMARKNET डेटा)',
@@ -169,6 +229,13 @@ export const translations: Record<Language, Record<string, string>> = {
     lowestPrice: 'न्यूनतम मॉडल भाव',
     priceTrendChart: 'पिछले 15 दिनों का भाव रुझान (₹/क्विंटल)',
     priceUnit: '₹/क्विंटल',
+    marketAPMC: 'मंडी / APMC',
+    districtCol: 'जिला',
+    minPriceCol: 'न्यूनतम (₹)',
+    maxPriceCol: 'अधिकतम (₹)',
+    modalPriceCol: 'मॉडल भाव (₹)',
+    regionalMandiComp: 'क्षेत्रीय मंडी भाव तुलना',
+    mandisReporting: 'मंडियों के भाव उपलब्ध',
 
     // Soil
     soilMetrics: 'मृदा परीक्षण एवं पोषक तत्व',
@@ -178,6 +245,8 @@ export const translations: Record<Language, Record<string, string>> = {
     soilTexture: 'मिट्टी की बनावट',
     addManualTestBtn: '+ अपनी मिट्टी जांच रिपोर्ट जोड़ें',
     kvkDisclaimer: 'सटीक उर्वरक प्रबंधन हेतु नजदीकी कृषि विज्ञान केंद्र (KVK) की मृदा जांच रिपोर्ट के आधार पर निर्णय लें।',
+    labTestValueTitle: 'प्रयोगशाला मृदा परीक्षण मान दर्ज करें',
+    enterReportSub: 'अपने मृदा स्वास्थ्य कार्ड या KVK रिपोर्ट के आधिकारिक मान दर्ज करें।',
 
     // Agent
     agentAutonomousTitle: 'स्वायत्त AI कृषि सलाहकार इंजन (Autonomous Agent)',
@@ -188,6 +257,13 @@ export const translations: Record<Language, Record<string, string>> = {
     inputParams: 'इनपुट',
     outputData: 'आउटपुट',
     duration: 'समय',
+
+    // Tasks & Calendar
+    growthStageTracker: 'फसल विकास चरण',
+    currentStageLabel: 'वर्तमान चरण',
+    addTask: '+ कार्य जोड़ें',
+    completed: 'पूर्ण',
+    noPendingTasks: 'कोई लंबित कार्य नहीं है। नया कार्य बनाने के लिए AI एजेंट चलाएं।',
 
     // Voice & Chat
     askVoicePrompt: 'माइक दबाएं और बोलें या सवाल टाइप करें...',
@@ -217,12 +293,26 @@ export const translations: Record<Language, Record<string, string>> = {
     liveBadge: 'Live Provider Data',
     cachedBadge: 'Cached Local Data',
     farmerGreeting: 'Welcome',
-    quickDemoBtn: 'Try Maharashtra Demo',
+    quickDemoBtn: 'Try Demo',
     getStartedBtn: 'Get Started',
     loginBtn: 'Login',
     registerBtn: 'Register',
     logoutBtn: 'Logout',
     offlineNotice: 'You are currently offline. Showing cached local data.',
+
+    // Common labels
+    loadingIntelligence: 'Loading agricultural intelligence...',
+    changeFarmCropBtn: 'Change Crop / Farm',
+    addFarmDetailsBtn: 'Set Up Farm Details',
+    refreshBtn: 'Refresh',
+    cropLabel: 'Crop',
+    stageLabel: 'Stage',
+    areaLabel: 'Area',
+    blockLabel: 'Block',
+    stateLabel: 'State',
+    locationLabel: 'Location',
+    noCropSelected: 'Crop Not Configured',
+    areaDefault: 'Area: 3.0 Acre',
 
     // Simplified Farmer Quick Decisions
     quickDecisionTitle: "Today's Instant Field Decisions",
@@ -230,15 +320,22 @@ export const translations: Record<Language, Record<string, string>> = {
     sprayNo: 'NO / Postpone Spraying',
     sprayYes: 'YES, Weather is Safe',
     sprayReasonHeavy: 'High wind and imminent rain will wash chemicals away.',
+    calmWeatherSpraySafe: 'Weather conditions are calm, foliar spraying is safe.',
     irrigationDecision: 'Irrigation Needed?',
     irrigationNo: 'NOT NEEDED (Rain Expected)',
     irrigationYes: 'YES, Provide light irrigation',
+    heavyRainExpected: 'Heavy Rainfall Expected',
+    lightRainExpected: 'Light / No Rain',
+    maintainDrainage: 'Maintain adequate furrow drainage.',
+    lowMoistureIrrigate: 'Soil moisture is low; provide light irrigation.',
+    rainSavesIrrigation: 'Upcoming rain will meet crop moisture demand. Save electricity.',
     mandiHighlight: "Today's Top Mandi Rate",
     drainageHighlight: 'Field Drainage',
     drainageUrgent: 'Clear furrows immediately',
     listenAdvice: 'Listen to Advice (Audio)',
     audioPlaying: 'Playing audio...',
     voiceFloatingBtn: 'Tap & Ask by Voice',
+    aboveAverage: 'above benchmark',
 
     // Tabs
     tabOverview: 'Daily Guidance',
@@ -259,6 +356,7 @@ export const translations: Record<Language, Record<string, string>> = {
     sprayHazardWarning: 'High Wind Velocity - Spraying Unsafe',
     heatWarning: 'Thermal Heat Stress Alert',
     drainageAction: 'Unclog farm drainage furrows immediately to avoid root asphyxiation.',
+    todayText: 'Today',
 
     // Mandi
     mandiOverview: 'Mandi Price Intelligence (AGMARKNET Source)',
@@ -269,6 +367,13 @@ export const translations: Record<Language, Record<string, string>> = {
     lowestPrice: 'Lowest Recorded APMC',
     priceTrendChart: '15-Day Historical Price Trend (₹/Quintal)',
     priceUnit: '₹/Quintal',
+    marketAPMC: 'Market / APMC',
+    districtCol: 'District',
+    minPriceCol: 'Min (₹)',
+    maxPriceCol: 'Max (₹)',
+    modalPriceCol: 'Modal Price (₹)',
+    regionalMandiComp: 'Regional Mandi Price Comparison',
+    mandisReporting: 'mandis reporting',
 
     // Soil
     soilMetrics: 'Soil Chemistry & Nutrient Status',
@@ -278,6 +383,8 @@ export const translations: Record<Language, Record<string, string>> = {
     soilTexture: 'Soil Classification',
     addManualTestBtn: '+ Enter Soil Test Report',
     kvkDisclaimer: 'Note: For precise chemical and fertilizer dosages, always correlate with an official laboratory test from your local Krishi Vigyan Kendra (KVK).',
+    labTestValueTitle: 'Add Laboratory Soil Test Values',
+    enterReportSub: 'Enter official values from your Soil Health Card or Krishi Vigyan Kendra report.',
 
     // Agent
     agentAutonomousTitle: 'Autonomous Agricultural Advisory Engine',
@@ -288,6 +395,13 @@ export const translations: Record<Language, Record<string, string>> = {
     inputParams: 'Input Parameters',
     outputData: 'Tool Output',
     duration: 'Duration',
+
+    // Tasks & Calendar
+    growthStageTracker: 'Crop Growth Stage Tracker',
+    currentStageLabel: 'Current Stage',
+    addTask: '+ Add Task',
+    completed: 'Completed',
+    noPendingTasks: 'No pending tasks. Run the AI agent to generate actionable tasks.',
 
     // Voice & Chat
     askVoicePrompt: 'Tap microphone to speak or type your agricultural query...',

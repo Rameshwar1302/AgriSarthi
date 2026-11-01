@@ -27,7 +27,7 @@ export const WeatherRiskCard: React.FC<WeatherRiskCardProps> = ({
   cropName = 'Soybean',
   cropStage = 'Flowering'
 }) => {
-  const { t } = useApp();
+  const { t, language } = useApp();
 
   if (!weather) {
     return (
@@ -213,7 +213,9 @@ export const WeatherRiskCard: React.FC<WeatherRiskCardProps> = ({
           <div className="grid grid-cols-4 sm:grid-cols-7 gap-2 overflow-x-auto pb-1">
             {daily.map((day, idx) => {
               const dateObj = new Date(day.date);
-              const dayName = idx === 0 ? 'Today' : dateObj.toLocaleDateString('en-IN', { weekday: 'short' });
+              const dayName = idx === 0 
+                ? (t.todayText || 'Today') 
+                : dateObj.toLocaleDateString(language === 'mr' ? 'mr-IN' : language === 'hi' ? 'hi-IN' : 'en-IN', { weekday: 'short' });
               const isRainy = day.precipitationSum > 10 || day.precipitationProbabilityMax > 60;
 
               return (

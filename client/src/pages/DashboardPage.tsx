@@ -37,7 +37,7 @@ export const DashboardPage: React.FC<DashboardPageProps> = ({ onOpenOnboarding }
       <div className="min-h-screen flex items-center justify-center p-6 text-slate-500">
         <div className="flex flex-col items-center gap-3">
           <RefreshCw className="w-10 h-10 animate-spin text-emerald-600" />
-          <p className="text-base font-bold text-slate-700">कृषी माहिती लोड होत आहे...</p>
+          <p className="text-base font-bold text-slate-700">{t.loadingIntelligence}</p>
         </div>
       </div>
     );
@@ -45,7 +45,7 @@ export const DashboardPage: React.FC<DashboardPageProps> = ({ onOpenOnboarding }
 
   const farm = dashboardData?.farm;
   const crop = dashboardData?.crop;
-  const farmerName = user?.name || dashboardData?.farmer?.name || 'शेतकरी मित्र';
+  const farmerName = user?.name || dashboardData?.farmer?.name || (language === 'mr' ? 'शेतकरी मित्र' : language === 'hi' ? 'किसान साथी' : 'Farmer');
 
   return (
     <div className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 py-5 space-y-6 pb-24">
@@ -54,28 +54,28 @@ export const DashboardPage: React.FC<DashboardPageProps> = ({ onOpenOnboarding }
         <div className="space-y-1.5 z-10">
           <div className="flex items-center gap-2">
             <span className="px-3 py-1 rounded-full text-xs font-bold bg-emerald-900/70 text-emerald-200 border border-emerald-400/30">
-              {farm?.name || (language === 'mr' ? `${farmerName.split(' ')[0]} यांचे शेत` : `${farmerName.split(' ')[0]}'s Farm`)}
+              {farm?.name || (language === 'mr' ? `${farmerName.split(' ')[0]} यांचे शेत` : language === 'hi' ? `${farmerName.split(' ')[0]} का खेत` : `${farmerName.split(' ')[0]}'s Farm`)}
             </span>
             <span className="text-xs text-emerald-200 font-medium">
-              {farm?.location ? (farm.location.includes(',') ? `तालुका: ${farm.location.split(',')[1].trim()}` : farm.location) : (language === 'mr' ? 'स्थान: महाराष्ट्र' : 'Location: Maharashtra')}
+              {farm?.location ? (farm.location.includes(',') ? `${t.blockLabel}: ${farm.location.split(',')[1].trim()}` : farm.location) : `${t.locationLabel}: Maharashtra`}
             </span>
           </div>
 
           <h1 className="text-2xl sm:text-3xl font-extrabold tracking-tight">
-            {dashboardData?.greeting || (language === 'mr' ? `राम राम, ${farmerName}!` : `Welcome, ${farmerName}!`)}
+            {dashboardData?.greeting || (language === 'mr' ? `राम राम, ${farmerName}!` : language === 'hi' ? `नमस्ते, ${farmerName}!` : `Welcome, ${farmerName}!`)}
           </h1>
 
           <div className="flex flex-wrap items-center gap-2 text-xs sm:text-sm text-emerald-100 font-medium">
             <span className="flex items-center gap-1">
               <MapPin className="w-4 h-4 text-emerald-300" />
-              {farm?.location || (language === 'mr' ? 'महाराष्ट्र' : 'Maharashtra')}
+              {farm?.location || 'Maharashtra'}
             </span>
             <span>•</span>
             <span className="bg-white/20 font-bold px-2.5 py-0.5 rounded-lg text-white">
-              {crop ? `पीक: ${crop.name} (${crop.stage} अवस्था)` : (language === 'mr' ? 'पीक निवडलेले नाही' : 'Crop Not Configured')}
+              {crop ? `${t.cropLabel}: ${crop.name} (${crop.stage} ${t.stageLabel})` : t.noCropSelected}
             </span>
             <span>•</span>
-            <span>{farm?.area ? `क्षेत्र: ${farm.area}` : (language === 'mr' ? 'क्षेत्र: ३.० एकर' : 'Area: 3.0 Acre')}</span>
+            <span>{farm?.area ? `${t.areaLabel}: ${farm.area}` : t.areaDefault}</span>
           </div>
         </div>
 
@@ -85,12 +85,12 @@ export const DashboardPage: React.FC<DashboardPageProps> = ({ onOpenOnboarding }
             className="flex items-center gap-1.5 px-4 py-2.5 rounded-2xl bg-white/15 hover:bg-white/25 text-white text-xs sm:text-sm font-bold border border-white/30 transition backdrop-blur-sm shadow-sm"
           >
             <Edit3 className="w-4 h-4" />
-            <span>{farm ? 'पीक / शेत बदला' : 'शेताची माहिती जोडा'}</span>
+            <span>{farm ? t.changeFarmCropBtn : t.addFarmDetailsBtn}</span>
           </button>
           <button
             onClick={() => refreshDashboard()}
             className="p-2.5 rounded-2xl bg-white/15 hover:bg-white/25 text-white border border-white/30 transition backdrop-blur-sm"
-            title="रिफ्रेश करा"
+            title={t.refreshBtn}
           >
             <RefreshCw className="w-4 h-4" />
           </button>

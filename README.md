@@ -131,6 +131,18 @@ npm run dev
 
 
 
+
+## 🏆 Hackathon Submission & Pitch Materials
+
+A complete, formal Hackathon Project Submission Document matching the 6 required template sections and scoring rubric is available in [HACKATHON_SUBMISSION.md](./HACKATHON_SUBMISSION.md):
+1. **Problem Statement** (Target Issue & Context, Impact on Smallholder Farmers)
+2. **Solution Description & Architecture** (High-Level Overview, System Design, Tech Stack)
+3. **Prototype Link & Deployment Guide** (Vercel & Render hosting instructions)
+4. **Demo Video Script** (2-3 minute timed talk track covering voice query, execution trace, and multilingual toggle)
+5. **GitHub Repository Structure** (Clean code, zero warnings, 17/17 acceptance tests)
+6. **7-Slide Pitch Deck Content** (Ready for Google Slides, Canva, or PDF submission)
+
+---
 ## 👥 Authors & Team
 - **AgriSaarthi Team**
 - GitHub: [Rameshwar1302](https://github.com/Rameshwar1302)

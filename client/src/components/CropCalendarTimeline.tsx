@@ -27,7 +27,7 @@ export const CropCalendarTimeline: React.FC<CropCalendarTimelineProps> = ({
   tasks = [],
   onTasksUpdated
 }) => {
-  const { t } = useApp();
+  const { t, language } = useApp();
   const [showAddTask, setShowAddTask] = useState(false);
   const [taskTitle, setTaskTitle] = useState('');
   const [taskDesc, setTaskDesc] = useState('');
@@ -36,12 +36,36 @@ export const CropCalendarTimeline: React.FC<CropCalendarTimelineProps> = ({
 
   // Stages definition for Soybean (and standard Kharif)
   const stages = [
-    { name: 'Land Preparation', days: '0-15 Days', isCompleted: true },
-    { name: 'Sowing & Emergence', days: 'Day 0-5', isCompleted: true },
-    { name: 'Vegetative & Weeding', days: 'Day 15-35', isCompleted: true },
-    { name: 'Flowering (Critical)', days: 'Day 35-55', isCurrent: true },
-    { name: 'Pod & Grain Filling', days: 'Day 55-75', isUpcoming: true },
-    { name: 'Maturity & Harvest', days: 'Day 75-95', isUpcoming: true }
+    { 
+      name: language === 'mr' ? 'जमीन मशागत' : language === 'hi' ? 'खेत की तैयारी' : 'Land Preparation', 
+      days: language === 'mr' ? '०-१५ दिवस' : language === 'hi' ? '0-15 दिन' : '0-15 Days', 
+      isCompleted: true 
+    },
+    { 
+      name: language === 'mr' ? 'पेरणी व उगवण' : language === 'hi' ? 'बुवाई एवं अंकुरण' : 'Sowing & Emergence', 
+      days: language === 'mr' ? 'दिवस ०-५' : language === 'hi' ? 'दिन 0-5' : 'Day 0-5', 
+      isCompleted: true 
+    },
+    { 
+      name: language === 'mr' ? 'शाकीय वाढ व खुरपणी' : language === 'hi' ? 'वानस्पतिक वृद्धि व निराई' : 'Vegetative & Weeding', 
+      days: language === 'mr' ? 'दिवस १५-३५' : language === 'hi' ? 'दिन 15-35' : 'Day 15-35', 
+      isCompleted: true 
+    },
+    { 
+      name: language === 'mr' ? 'फुलोरा (अतिसंवेदनशील)' : language === 'hi' ? 'फूल आना (संवेदनशील)' : 'Flowering (Critical)', 
+      days: language === 'mr' ? 'दिवस ३५-५५' : language === 'hi' ? 'दिन 35-55' : 'Day 35-55', 
+      isCurrent: true 
+    },
+    { 
+      name: language === 'mr' ? 'शेंगा व दाणे भरणे' : language === 'hi' ? 'फलियां व दाना भराव' : 'Pod & Grain Filling', 
+      days: language === 'mr' ? 'दिवस ५५-७५' : language === 'hi' ? 'दिन 55-75' : 'Day 55-75', 
+      isUpcoming: true 
+    },
+    { 
+      name: language === 'mr' ? 'पक्वता व काढणी' : language === 'hi' ? 'परिपक्वता व कटाई' : 'Maturity & Harvest', 
+      days: language === 'mr' ? 'दिवस ७५-९५' : language === 'hi' ? 'दिन 75-95' : 'Day 75-95', 
+      isUpcoming: true 
+    }
   ];
 
   const handleToggleTask = async (task: FarmTask) => {
@@ -89,7 +113,7 @@ export const CropCalendarTimeline: React.FC<CropCalendarTimelineProps> = ({
               {t.cropCalendar}: {cropName}
             </h2>
             <p className="text-xs text-slate-500">
-              Current Stage: <span className="font-semibold text-emerald-700">{cropStage}</span>
+              {t.currentStageLabel}: <span className="font-semibold text-emerald-700">{cropStage}</span>
             </p>
           </div>
         </div>
@@ -99,7 +123,7 @@ export const CropCalendarTimeline: React.FC<CropCalendarTimelineProps> = ({
           className="flex items-center gap-1 px-3 py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-semibold shadow-sm transition"
         >
           <Plus className="w-3.5 h-3.5" />
-          <span>Add Task</span>
+          <span>{t.addTask}</span>
         </button>
       </div>
 
@@ -107,7 +131,7 @@ export const CropCalendarTimeline: React.FC<CropCalendarTimelineProps> = ({
         {/* Stage Progress Bar / Stepper */}
         <div>
           <span className="text-xs font-bold uppercase tracking-wider text-slate-500 block mb-3">
-            Phenological Growth Stage Tracker
+            {t.growthStageTracker}
           </span>
           <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-2">
             {stages.map((stg, i) => (
@@ -144,16 +168,16 @@ export const CropCalendarTimeline: React.FC<CropCalendarTimelineProps> = ({
         {/* Actionable Farm Tasks Checklist */}
         <div className="space-y-3">
           <div className="flex items-center justify-between text-xs font-bold uppercase tracking-wider text-slate-500">
-            <span>{t.tasks} & Schedule</span>
+            <span>{t.tasks}</span>
             <span className="text-[11px] font-normal text-slate-400">
-              {tasks.filter(t => t.status === 'COMPLETED').length}/{tasks.length} Completed
+              {tasks.filter(t => t.status === 'COMPLETED').length}/{tasks.length} {t.completed}
             </span>
           </div>
 
           <div className="space-y-2">
             {tasks.length === 0 ? (
               <div className="p-4 text-center text-xs text-slate-400 rounded-xl bg-slate-50 border border-slate-100">
-                No pending tasks. Run the autonomous agent to generate customized tasks.
+                {t.noPendingTasks}
               </div>
             ) : (
               tasks.map((task) => {

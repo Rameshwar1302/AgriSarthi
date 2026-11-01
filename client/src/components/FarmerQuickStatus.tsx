@@ -140,7 +140,7 @@ export const FarmerQuickStatus: React.FC<FarmerQuickStatusProps> = ({ dashboardD
           </div>
           <p className="text-xs text-slate-600 leading-snug">
             {canSpray 
-              ? 'हवा व पाऊस शांत आहे, फवारणी करू शकता.' 
+              ? t.calmWeatherSpraySafe
               : t.sprayReasonHeavy}
           </p>
         </div>
@@ -154,10 +154,10 @@ export const FarmerQuickStatus: React.FC<FarmerQuickStatusProps> = ({ dashboardD
             <CloudRain className="w-6 h-6 text-sky-600" />
           </div>
           <div className="text-xl font-extrabold text-sky-900 mb-1">
-            {rain48h > 30 ? '५२ मिमी पाऊस संभवतो' : 'हलका पाऊस'}
+            {rain48h > 30 ? t.heavyRainExpected : t.lightRainExpected}
           </div>
           <p className="text-xs text-slate-600 leading-snug">
-            {rain48h > 30 ? t.drainageUrgent : 'पाण्याचा निचरा सुरळीत ठेवा.'}
+            {rain48h > 30 ? t.drainageUrgent : t.maintainDrainage}
           </p>
         </div>
 
@@ -174,8 +174,8 @@ export const FarmerQuickStatus: React.FC<FarmerQuickStatusProps> = ({ dashboardD
           </div>
           <p className="text-xs text-slate-600 leading-snug">
             {needsIrrigation 
-              ? 'जमिनीतील ओलावा कमी आहे, हलके पाणी द्या.' 
-              : 'आगामी पावसामुळे पाणी देण्याचा खर्च व वीज वाचवा.'}
+              ? t.lowMoistureIrrigate
+              : t.rainSavesIrrigation}
           </p>
         </div>
 
@@ -188,10 +188,10 @@ export const FarmerQuickStatus: React.FC<FarmerQuickStatusProps> = ({ dashboardD
             <TrendingUp className="w-6 h-6 text-emerald-600" />
           </div>
           <div className="text-xl font-extrabold text-emerald-900 mb-1">
-            ₹{topMandi.modalPrice.toLocaleString()} / क्विंटल
+            ₹{topMandi.modalPrice.toLocaleString()} {t.priceUnit}
           </div>
           <p className="text-xs text-slate-600 leading-snug">
-            {topMandi.market} (+₹{topMandi.differenceFromAverage} अधिक भाव)
+            {topMandi.market} (+₹{topMandi.differenceFromAverage} {t.aboveAverage})
           </p>
         </div>
       </div>

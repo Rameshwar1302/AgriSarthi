@@ -72,20 +72,25 @@ export const VoiceAdvisoryChat: React.FC = () => {
 
   // Initial greeting message
   useEffect(() => {
-    if (messages.length === 0) {
-      const initialGreeting: ChatEntry = {
-        id: 'msg_init',
-        sender: 'assistant',
-        text: language === 'mr'
-          ? 'राम राम! मी कृषीसारथी AI आहे. आपल्या शेतातील हवामान, सोयाबीन पीक संरक्षण किंवा बाजारभावाबाबत काहीही विचारा. आपण बोलूही शकता!'
-          : language === 'hi'
-          ? 'नमस्ते! मैं कृषिसारथी AI हूँ। अपने खेत के मौसम, फसल सुरक्षा या मंडी भाव के बारे में कोई भी प्रश्न पूछें।'
-          : 'Welcome! I am AgriSaarthi AI. Ask any question about crop protection, weather risk management, or mandi rates.',
-        timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
-      };
-      setMessages([initialGreeting]);
-    }
-  }, [language]);
+    const cropName = dashboardData?.crop?.name || (language === 'mr' ? 'पीक' : language === 'hi' ? 'फसल' : 'crop');
+    const initialGreeting: ChatEntry = {
+      id: 'msg_init',
+      sender: 'assistant',
+      text: language === 'mr'
+        ? `राम राम! मी कृषीसारथी AI आहे. आपल्या शेतातील हवामान, ${cropName} पीक संरक्षण किंवा बाजारभावाबाबत काहीही विचारा. आपण बोलूही शकता!`
+        : language === 'hi'
+        ? `नमस्ते! मैं कृषिसारथी AI हूँ। अपने खेत के मौसम, ${cropName} फसल सुरक्षा या मंडी भाव के बारे में कोई भी प्रश्न पूछें।`
+        : `Welcome! I am AgriSaarthi AI. Ask any question about crop protection, weather risk management, or mandi rates for ${cropName}.`,
+      timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+    };
+
+    setMessages((prev) => {
+      if (prev.length <= 1) {
+        return [initialGreeting];
+      }
+      return prev;
+    });
+  }, [language, dashboardData?.crop?.name]);
 
   // Scroll to bottom
   useEffect(() => {
@@ -199,7 +204,11 @@ export const VoiceAdvisoryChat: React.FC = () => {
               </span>
             </h2>
             <p className="text-xs text-slate-500">
-              Grounded in Open-Meteo, AGMARKNET, and SoilGrids data
+              {language === 'mr' 
+                ? 'Open-Meteo, AGMARKNET आणि SoilGrids डेटावर आधारित' 
+                : language === 'hi' 
+                ? 'Open-Meteo, AGMARKNET और SoilGrids डेटा पर आधारित' 
+                : 'Grounded in Open-Meteo, AGMARKNET, and SoilGrids data'}
             </p>
           </div>
         </div>

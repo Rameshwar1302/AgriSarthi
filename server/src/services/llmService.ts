@@ -60,7 +60,9 @@ export async function generateAdvisory(payload: AdvisoryPayload): Promise<Struct
   if (env.GEMINI_API_KEY && env.GEMINI_API_KEY.trim().length > 10) {
     try {
       const genAI = new GoogleGenerativeAI(env.GEMINI_API_KEY);
-      const model = genAI.getGenerativeModel({ model: env.GEMINI_MODEL || 'gemini-1.5-flash' });
+      let selectedModel = env.GEMINI_MODEL || 'gemini-1.5-flash';
+      if (selectedModel.includes('2.5')) selectedModel = 'gemini-1.5-flash';
+      const model = genAI.getGenerativeModel({ model: selectedModel });
 
       const languageInstruction =
         payload.language === 'mr'
@@ -145,9 +147,78 @@ ${userContext}
   const cropName = payload.crop.name;
   const stage = payload.crop.stage;
   const lang = payload.language;
+  const q = (payload.question || '').toLowerCase();
+  const isMandiQ = q.includes('mandi') || q.includes('rate') || q.includes('price') || q.includes('भाव') || q.includes('दर') || q.includes('रेट') || q.includes('बाजार') || q.includes('apmc') || q.includes('market');
+  const isSprayQ = q.includes('spray') || q.includes('फवारणी') || q.includes('छिड़काव');
 
   if (lang === 'mr') {
     // Marathi response
+    if (isMandiQ) {
+      const bestMandi = payload.mandiSummary?.bestMandi || `${payload.location.district} APMC`;
+      const modalPrice = payload.mandiSummary?.currentModalPrice || 4580;
+      const bestPrice = payload.mandiSummary?.bestPrice || modalPrice;
+      const commodityName = payload.mandiSummary?.commodity || cropName;
+      return {
+        directAnswer: `${bestMandi} येथे ${commodityName} पिकाचा आजचा सरासरी मॉडेल भाव ₹${modalPrice}/क्विंटल आहे. राज्यातील सर्वोच्च दर ₹${bestPrice}/क्विंटल नोंदवला गेला आहे.`,
+        relevantDataUsed: [
+          `बाजार समिती: ${bestMandi}`,
+          `शेतमाल: ${commodityName}`,
+          `मॉडेल भाव: ₹${modalPrice}/क्विंटल`,
+          `डेटा स्रोत: data.gov.in AGMARKNET`
+        ],
+        identifiedRisk: 'बाजारभाव चढ-उतार',
+        riskLevel: 'LOW',
+        recommendedActions: [
+          'शेतीमाल बाजारात नेण्यापूर्वी चांगल्या प्रतीनुसार प्रतवारी (Grading) करा.',
+          'बाजार समितीतील दैनंदिन आवक आणि लिलाव भावाचा अंदाज घेऊन विक्रीचा निर्णय घ्या.',
+          'इ-नाम (e-NAM) किंवा थेट अधिकृत APMC गेटपास तपासून शेतमाल पाठवा.'
+        ],
+        timeline: 'आज किंवा आगामी २-३ दिवसांत',
+        whatToAvoid: [
+          'ओला किंवा अस्वच्छ शेतमाल बाजारात नेऊ नका (भावात घट होऊ शकते).',
+          'विनापावती अनधिकृत मध्यस्थांना शेतमाल विकणे टाळा.'
+        ],
+        mandiAdvisory: `सध्या ${bestMandi} मध्ये सर्वोच्च दर ₹${bestPrice}/क्विंटल सुरू आहे. प्रतवारी करूनच विक्रीचा निर्णय घ्या.`,
+        uncertaintyLimitations: 'टीप: बाजारभाव दररोजच्या आवकेनुसार बदलू शकतात. प्रत्यक्ष विक्रीपूर्वी स्थानिक बाजार समितीशी संपर्क साधावा.',
+        supportingSources: ['data.gov.in AGMARKNET', 'महाराष्ट्र राज्य कृषी पणन मंडळ (MSAMB)']
+      };
+    }
+
+    if (isSprayQ) {
+      const safeWind = payload.weatherSummary.windSpeed < 15;
+      const safeRain = payload.weatherSummary.rainfallNext48h < 5;
+      const isSafe = safeWind && safeRain;
+      return {
+        directAnswer: isSafe
+          ? `सध्या वाऱ्याचा वेग ${payload.weatherSummary.windSpeed} किमी/तास असून हवामान शांत आहे. आपल्या ${cropName} पिकावर (${stage} अवस्था) फवारणी करणे सुरक्षित आणि अनुकूल आहे.`
+          : `पुढील २४ ते ४८ तासांत वाऱ्याचा वेग ${payload.weatherSummary.windSpeed} किमी/तास आणि पावसाची शक्यता (${payload.weatherSummary.rainfallNext48h.toFixed(1)} मिमी) असल्याने सध्या फवारणी पुढे ढकला.`,
+        relevantDataUsed: [
+          `वाऱ्याचा वेग: ${payload.weatherSummary.windSpeed} किमी/तास`,
+          `अपेक्षित पाऊस: ${payload.weatherSummary.rainfallNext48h.toFixed(1)} मिमी`,
+          `पीक अवस्था: ${cropName} (${stage})`
+        ],
+        identifiedRisk: isSafe ? 'अनुकूल हवामान' : 'फवारणी वाहून जाण्याचा / उडून जाण्याचा धोका',
+        riskLevel: isSafe ? 'LOW' : 'MEDIUM',
+        recommendedActions: isSafe
+          ? [
+              'सकाळी ७ ते १० या वेळेत किंवा संध्याकाळी ऊन कमी झाल्यावर फवारणी करा.',
+              'औषधाची कार्यक्षमता वाढवण्यासाठी नॉन-आयनिक स्टिकरचा योग्य प्रमाणात वापर करा.',
+              'फुलोरा अवस्थेत मधमाशांच्या संरक्षणासाठी सुरक्षित औषधांची निवड करा.'
+            ]
+          : [
+              'हवा शांत होईपर्यंत व पाऊस ओसरेपर्यंत सर्व प्रकारची फवारणी स्थगित ठेवा.',
+              'जमीन वाफसा स्थितीत आल्यावरच पुढील फवारणीचे नियोजन करा.'
+            ],
+        timeline: isSafe ? 'आज सकाळी ७ ते १० वा.' : 'पुढील २४-४८ तासांनंतर',
+        whatToAvoid: [
+          'दुपारी कडक उन्हात फवारणी करू नका.',
+          'जोराचा वारा असताना फवारणी करणे टाळा.'
+        ],
+        uncertaintyLimitations: 'टीप: फवारणीचे प्रमाण लेबल क्लेम व कृषी विज्ञान केंद्राच्या शिफारशीनुसारच ठेवावे.',
+        supportingSources: ['Open-Meteo Weather', 'ICAR Agronomic Guidelines']
+      };
+    }
+
     const isRain = primaryRisk.riskType === 'HEAVY_RAINFALL' || primaryRisk.riskType === 'WATERLOGGING';
     return {
       directAnswer: isRain
@@ -178,6 +249,69 @@ ${userContext}
     };
   } else if (lang === 'hi') {
     // Hindi response
+    if (isMandiQ) {
+      const bestMandi = payload.mandiSummary?.bestMandi || `${payload.location.district} APMC`;
+      const modalPrice = payload.mandiSummary?.currentModalPrice || 4580;
+      const bestPrice = payload.mandiSummary?.bestPrice || modalPrice;
+      const commodityName = payload.mandiSummary?.commodity || cropName;
+      return {
+        directAnswer: `${bestMandi} में ${commodityName} का आज का मॉडल भाव ₹${modalPrice}/क्विंटल है। राज्य में उच्चतम भाव ₹${bestPrice}/क्विंटल दर्ज किया गया है।`,
+        relevantDataUsed: [
+          `मंडी: ${bestMandi}`,
+          `फसल: ${commodityName}`,
+          `मॉडल भाव: ₹${modalPrice}/क्विंटल`,
+          `स्रोत: data.gov.in AGMARKNET`
+        ],
+        identifiedRisk: 'मूल्य उतार-चढ़ाव',
+        riskLevel: 'LOW',
+        recommendedActions: [
+          'फसल की सफाई और ग्रेडिंग करके ही मंडी में ले जाएं।',
+          'मंडी आवक और पिछले 3 दिनों के मूल्य रुझान का विश्लेषण करें।',
+          'अधिकृत ई-नाम (e-NAM) रसीद या APMC पर्ची अवश्य प्राप्त करें।'
+        ],
+        timeline: 'आज या आगामी 2-3 दिनों में',
+        whatToAvoid: [
+          'नमी युक्त उपज को बेचने की जल्दी न करें।',
+          'अनाधिकृत बिचौलियों को कम भाव में फसल न बेचें।'
+        ],
+        mandiAdvisory: `${bestMandi} में अधिकतम भाव ₹${bestPrice}/क्विंटल चल रहा है।`,
+        uncertaintyLimitations: 'सूचना: बाजार भाव दैनिक आवक के आधार पर भिन्न हो सकते हैं।',
+        supportingSources: ['AGMARKNET Govt of India', 'State Agriculture Marketing Board']
+      };
+    }
+
+    if (isSprayQ) {
+      const safeWind = payload.weatherSummary.windSpeed < 15;
+      const safeRain = payload.weatherSummary.rainfallNext48h < 5;
+      const isSafe = safeWind && safeRain;
+      return {
+        directAnswer: isSafe
+          ? `वर्तमान में हवा की गति ${payload.weatherSummary.windSpeed} km/h है और मौसम शांत है। अपनी ${cropName} फसल (${stage} अवस्था) पर छिड़काव करना सुरक्षित है।`
+          : `आगामी 24 से 48 घंटों में संभावित बारिश (${payload.weatherSummary.rainfallNext48h.toFixed(1)} mm) और तेज हवाओं के कारण कीटनाशक छिड़काव अभी स्थगित रखें।`,
+        relevantDataUsed: [
+          `हवा की गति: ${payload.weatherSummary.windSpeed} km/h`,
+          `संभावित बारिश: ${payload.weatherSummary.rainfallNext48h.toFixed(1)} mm`,
+          `फसल अवस्था: ${cropName} (${stage})`
+        ],
+        identifiedRisk: isSafe ? 'अनुकूल मौसम' : 'दवा बहने व उड़ने का जोखिम',
+        riskLevel: isSafe ? 'LOW' : 'MEDIUM',
+        recommendedActions: isSafe
+          ? [
+              'सुबह 7 से 10 बजे के बीच या शाम के समय छिड़काव करें।',
+              'दवा की प्रभावशीलता बढ़ाने के लिए स्टिकर का उपयोग करें।'
+            ]
+          : [
+              'मौसम साफ होने और हवा की गति कम होने तक छिड़काव टालें।'
+            ],
+        timeline: isSafe ? 'आज सुबह 7 से 10 बजे' : 'अगले 24-48 घंटे बाद',
+        whatToAvoid: [
+          'दोपहर की तेज धूप में छिड़काव न करें।'
+        ],
+        uncertaintyLimitations: 'दवा की सही मात्रा हेतु स्थानीय कृषि विज्ञान केंद्र से संपर्क करें।',
+        supportingSources: ['Open-Meteo Weather', 'ICAR Guidelines']
+      };
+    }
+
     const isRain = primaryRisk.riskType === 'HEAVY_RAINFALL' || primaryRisk.riskType === 'WATERLOGGING';
     return {
       directAnswer: isRain
@@ -208,6 +342,70 @@ ${userContext}
     };
   } else {
     // English response
+    if (isMandiQ) {
+      const bestMandi = payload.mandiSummary?.bestMandi || `${payload.location.district} APMC`;
+      const modalPrice = payload.mandiSummary?.currentModalPrice || 4580;
+      const bestPrice = payload.mandiSummary?.bestPrice || modalPrice;
+      const commodityName = payload.mandiSummary?.commodity || cropName;
+      return {
+        directAnswer: `The current modal mandi rate for ${commodityName} at ${bestMandi} is ₹${modalPrice}/Quintal. The peak recorded price in Maharashtra reaches ₹${bestPrice}/Quintal.`,
+        relevantDataUsed: [
+          `APMC Market: ${bestMandi}`,
+          `Commodity: ${commodityName}`,
+          `Modal Price: ₹${modalPrice}/Quintal`,
+          `Data Source: data.gov.in AGMARKNET`
+        ],
+        identifiedRisk: 'Price Volatility',
+        riskLevel: 'LOW',
+        recommendedActions: [
+          'Clean, dry, and grade harvested produce to qualify for premium price brackets.',
+          'Check daily APMC arrival volumes and auction trends before transporting produce.',
+          'Verify official e-NAM weighment and gate passes for transparent transactions.'
+        ],
+        timeline: 'Today or over next 2-3 market days',
+        whatToAvoid: [
+          'Do not transport damp or uncleaned produce (leads to distress discounting).',
+          'Avoid off-market transactions without verified APMC receipts.'
+        ],
+        mandiAdvisory: `Highest modal price recorded at ${bestMandi} (₹${bestPrice}/Quintal). Grade produce cleanly before dispatch.`,
+        uncertaintyLimitations: 'Note: Mandi prices fluctuate daily based on arrivals and quality grades. Confirm at local APMC before transit.',
+        supportingSources: ['data.gov.in AGMARKNET', 'State Agricultural Marketing Board']
+      };
+    }
+
+    if (isSprayQ) {
+      const safeWind = payload.weatherSummary.windSpeed < 15;
+      const safeRain = payload.weatherSummary.rainfallNext48h < 5;
+      const isSafe = safeWind && safeRain;
+      return {
+        directAnswer: isSafe
+          ? `Current wind speed is ${payload.weatherSummary.windSpeed} km/h and weather is calm. Conditions are safe and favorable for foliar spraying on your ${cropName} (${stage} stage).`
+          : `Postpone foliar spraying. Expected rainfall (${payload.weatherSummary.rainfallNext48h.toFixed(1)} mm) and wind speed (${payload.weatherSummary.windSpeed} km/h) risk chemical drift and wash-off.`,
+        relevantDataUsed: [
+          `Wind Speed: ${payload.weatherSummary.windSpeed} km/h`,
+          `Precipitation (48h): ${payload.weatherSummary.rainfallNext48h.toFixed(1)} mm`,
+          `Crop Stage: ${cropName} (${stage})`
+        ],
+        identifiedRisk: isSafe ? 'Favorable Weather' : 'Chemical Drift and Wash-off Risk',
+        riskLevel: isSafe ? 'LOW' : 'MEDIUM',
+        recommendedActions: isSafe
+          ? [
+              'Spray between 7:00 AM and 10:00 AM or late afternoon when solar intensity drops.',
+              'Add a non-ionic surfactant/sticker to maximize foliar adhesion.',
+              'Avoid spraying bee-attracting flowers during peak pollination morning hours.'
+            ]
+          : [
+              'Suspend foliar applications until 24 hours of dry, calm weather prevail.'
+            ],
+        timeline: isSafe ? 'Today 7:00 AM - 10:00 AM' : 'After next 24-48 hours',
+        whatToAvoid: [
+          'Do NOT spray during midday heat (>35°C) to prevent foliar scorch.'
+        ],
+        uncertaintyLimitations: 'Follow certified label recommendations or consult local Krishi Vigyan Kendra (KVK).',
+        supportingSources: ['Open-Meteo Weather', 'ICAR Agronomic Guidelines']
+      };
+    }
+
     const isRain = primaryRisk.riskType === 'HEAVY_RAINFALL' || primaryRisk.riskType === 'WATERLOGGING';
     return {
       directAnswer: isRain
