@@ -21,6 +21,22 @@ app.use((req, res, next) => {
   next();
 });
 
+// Root Status Route
+app.get('/', (req, res) => {
+  res.json({
+    status: 'online',
+    message: '🌾 AgriSaarthi AI Backend Server is live and healthy!',
+    version: '1.0.0',
+    endpoints: {
+      health: '/api/health',
+      dashboard: '/api/dashboard',
+      weather: '/api/weather',
+      mandi: '/api/mandi/prices',
+      soil: '/api/soil'
+    }
+  });
+});
+
 // API Routes
 app.use('/api', apiRouter);
 
