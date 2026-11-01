@@ -6,7 +6,8 @@
   "scripts": {
     "dev": "vite",
     "build": "tsc && vite build",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "install:all": "npm install"
   },
   "dependencies": {
     "axios": "^1.7.9",
