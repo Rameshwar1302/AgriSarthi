@@ -36,6 +36,30 @@ app.use((err: any, req: express.Request, res: express.Response, next: express.Ne
 
 const PORT = Number(env.PORT) || 5000;
 
+let isConnected = false;
+export async function connectDB() {
+  if (isConnected || mongoose.connection.readyState >= 1) return;
+  try {
+    mongoose.set('strictQuery', false);
+    await mongoose.connect(env.MONGODB_URI, {
+      serverSelectionTimeoutMS: 2000
+    });
+    isConnected = true;
+    console.log('✅ Connected to MongoDB successfully.');
+  } catch (dbError: any) {
+    console.warn(`⚠️ [MongoDB] Local/Atlas MongoDB not detected: ${dbError.message}`);
+    console.log('🛡️ [Resilience Guard] Seamlessly operating in Zero-Crash In-Memory Store Mode with Maharashtra Demo Farmer pre-loaded!');
+  }
+}
+
+// Auto-connect on serverless invocations (e.g. Vercel)
+app.use(async (req, res, next) => {
+  if (process.env.VERCEL) {
+    await connectDB();
+  }
+  next();
+});
+
 // Resilient Server Startup
 async function startServer() {
   console.log('--------------------------------------------------');
@@ -45,17 +69,7 @@ async function startServer() {
   console.log(`⚡ Demo Mode: ${env.DEMO_MODE ? 'ACTIVE (Resilient Seeds Enabled)' : 'OFF'}`);
   console.log('--------------------------------------------------');
 
-  // Attempt MongoDB Connection with timeout
-  try {
-    mongoose.set('strictQuery', false);
-    await mongoose.connect(env.MONGODB_URI, {
-      serverSelectionTimeoutMS: 2000
-    });
-    console.log('✅ Connected to MongoDB successfully.');
-  } catch (dbError: any) {
-    console.warn(`⚠️ [MongoDB] Local/Atlas MongoDB not detected: ${dbError.message}`);
-    console.log('🛡️ [Resilience Guard] Seamlessly operating in Zero-Crash In-Memory Store Mode with Maharashtra Demo Farmer pre-loaded!');
-  }
+  await connectDB();
 
   app.listen(PORT, () => {
     console.log(`🚀 AgriSaarthi API listening on http://localhost:${PORT}`);
@@ -63,5 +77,10 @@ async function startServer() {
   });
 }
 
-startServer();
+export { app };
+export default app;
+
+if (!process.env.VERCEL) {
+  startServer();
+}
 

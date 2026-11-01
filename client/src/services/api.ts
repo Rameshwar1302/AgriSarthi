@@ -1,7 +1,7 @@
 import axios from 'axios';
 import { DashboardData, FarmTask, AlertNotification, MandiComparisonResult } from '../types';
 
-const API_BASE = '/api';
+const API_BASE = (import.meta as any).env?.VITE_API_BASE_URL || '/api';
 
 export const apiClient = axios.create({
   baseURL: API_BASE,

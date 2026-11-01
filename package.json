@@ -1,6 +1,7 @@
 {
   "name": "agrisaarthi-ai",
   "version": "1.0.0",
+  "type": "module",
   "description": "AgriSaarthi AI: Multilingual Agritech & Resource Advisory Assistant",
   "scripts": {
     "dev": "concurrently \"npm run dev:server\" \"npm run dev:client\"",
