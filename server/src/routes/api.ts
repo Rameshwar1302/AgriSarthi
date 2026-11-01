@@ -401,14 +401,53 @@ router.post('/advisory/chat', authenticate, async (req: AuthRequest, res: Respon
     const { question, language, cropName } = req.body;
     const farm = memoryStore.farms[0] || DEMO_FARMER.farm;
     const user = memoryStore.users[0] || DEMO_FARMER.user;
+    const activeCrop = cropName || DEMO_FARMER.crop.cropName;
+    const lang = language || req.user?.preferredLanguage || 'mr';
 
+    // 1. Fast Greeting Response (Sub-100ms conversational speed)
+    const cleanQ = (question || '').trim().toLowerCase();
+    const commonGreetings = ['hi', 'hii', 'hiii', 'hello', 'hey', 'namaste', 'namaskar', 'राम राम', 'नमस्कार', 'नमस्ते', 'प्रणाम'];
+    
+    if (commonGreetings.includes(cleanQ)) {
+      const greetingTexts = {
+        mr: `राम राम ${user.name}! मी कृषीसारथी AI आहे. आपल्या ${farm.district} येथील ${activeCrop} पिकाचे संरक्षण, आगामी पाऊस आणि आजच्या लातूर बाजारभावाबाबत संपूर्ण सल्ला देण्यासाठी मी सज्ज आहे. आपण काय विचारू इच्छिता?`,
+        hi: `नमस्ते ${user.name}! मैं कृषिसारथी AI हूँ। आपके ${farm.district} क्षेत्र की ${activeCrop} फसल, मौसम चेतावनी और मंडी भाव के बारे में सहायता के लिए मैं तैयार हूँ। आप क्या जानना चाहते हैं?`,
+        en: `Hello ${user.name}! I am AgriSaarthi AI, your personalized agronomist. I am ready to guide you on crop protection for ${activeCrop}, local rainfall risks, and APMC mandi rates. How can I help you today?`
+      };
+
+      const greetingAnswer = greetingTexts[lang as 'mr'|'hi'|'en'] || greetingTexts.mr;
+      return res.json({
+        answer: greetingAnswer,
+        structuredAdvice: {
+          directAnswer: greetingAnswer,
+          relevantDataUsed: [`Farm: ${farm.district}`, `Crop: ${activeCrop}`],
+          identifiedRisk: 'No current risks on general greeting',
+          riskLevel: 'LOW',
+          recommendedActions: [
+            lang === 'mr' ? 'फवारणी अनुकूलतेबाबत विचारा' : 'Ask about spraying suitability',
+            lang === 'mr' ? 'आगामी पावसाचा अंदाज विचारा' : 'Ask about upcoming rainfall',
+            lang === 'mr' ? 'आजचे बाजारभाव तपासा' : 'Check latest mandi rates'
+          ],
+          timeline: 'Today',
+          whatToAvoid: [],
+          uncertaintyLimitations: 'Grounded on verified AgriSaarthi agronomic knowledge base.',
+          supportingSources: ['AgriSaarthi AI']
+        },
+        trace: [],
+        risks: [],
+        createdTasks: [],
+        createdAlerts: []
+      });
+    }
+
+    // 2. Full Agronomic Question Processing
     const agent = new AgriculturalAdvisoryAgent();
     const result = await agent.runWorkflow({
       userId: user._id,
       farmId: farm._id,
       farmerName: user.name,
-      language: language || 'mr',
-      cropName: cropName || 'Soybean',
+      language: lang,
+      cropName: activeCrop,
       district: farm.district || 'Latur',
       question
     });
@@ -420,7 +459,7 @@ router.post('/advisory/chat', authenticate, async (req: AuthRequest, res: Respon
       conversationId: 'default_conv',
       role: 'assistant',
       content: result.advisory.directAnswer,
-      language: language || 'mr',
+      language: lang,
       structuredAdvice: result.advisory,
       createdAt: new Date()
     };

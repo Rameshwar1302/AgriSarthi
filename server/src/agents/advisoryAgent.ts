@@ -259,23 +259,19 @@ export class AgriculturalAdvisoryAgent {
     const lat = params.latitude || 18.2500;
     const lon = params.longitude || 76.5000;
 
-    // 1. Tool Call: Weather
-    const weather = await this.getWeatherForecast(lat, lon, `${district}, Maharashtra`);
+    // 1-4. Concurrent Tool Calls: Weather, Soil, Mandi, Crop Profile
+    const [weather, soil, mandi, cropProfile] = await Promise.all([
+      this.getWeatherForecast(lat, lon, `${district}, Maharashtra`),
+      this.getSoilInformation(lat, lon),
+      this.getMandiPrices(cropName, 'Maharashtra', district),
+      this.getCropProfile(cropName)
+    ]);
 
-    // 2. Tool Call: Soil
-    const soil = await this.getSoilInformation(lat, lon);
-
-    // 3. Tool Call: Mandi
-    const mandi = await this.getMandiPrices(cropName, 'Maharashtra', district);
-
-    // 4. Tool Call: Crop Profile
-    const cropProfile = await this.getCropProfile(cropName);
-
-    // 5. Tool Call: Evaluate Weather Risk
-    const evaluatedRisks = await this.evaluateWeatherRisk(cropName, cropStage, weather);
-
-    // 6. Tool Call: Generate Crop Schedule
-    const schedule = await this.generateCropSchedule(cropName, sowingDate);
+    // 5-6. Concurrent Tool Calls: Evaluate Weather Risk & Dynamic Schedule
+    const [evaluatedRisks, schedule] = await Promise.all([
+      this.evaluateWeatherRisk(cropName, cropStage, weather),
+      this.generateCropSchedule(cropName, sowingDate)
+    ]);
 
     // 7. Tool Call: Generate Personalized Advisory
     const precip48h = (weather.daily.slice(0, 2) || []).reduce((acc, curr) => acc + (curr.precipitationSum || 0), 0);
