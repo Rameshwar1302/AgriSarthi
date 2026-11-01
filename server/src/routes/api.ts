@@ -479,6 +479,70 @@ router.post('/agent/run', authenticate, async (req: AuthRequest, res: Response) 
   }
 });
 
+function parseQuestionEntities(q: string, defaultCrop: string, defaultDistrict: string) {
+  const norm = (q || '').toLowerCase();
+  
+  let targetCrop = defaultCrop;
+  if (norm.includes('cotton') || norm.includes('kapas') || norm.includes('कापूस') || norm.includes('कपास')) {
+    targetCrop = 'Cotton';
+  } else if (norm.includes('soybean') || norm.includes('soyabean') || norm.includes('सोयाबीन')) {
+    targetCrop = 'Soybean';
+  } else if (norm.includes('onion') || norm.includes('kanda') || norm.includes('कांदा') || norm.includes('प्याज')) {
+    targetCrop = 'Onion';
+  } else if (norm.includes('wheat') || norm.includes('gehun') || norm.includes('गहू') || norm.includes('गेहूँ')) {
+    targetCrop = 'Wheat';
+  } else if (norm.includes('tur') || norm.includes('arhar') || norm.includes('तूर') || norm.includes('अरहर')) {
+    targetCrop = 'Tur';
+  } else if (norm.includes('chana') || norm.includes('gram') || norm.includes('harbhara') || norm.includes('हरभरा') || norm.includes('चना')) {
+    targetCrop = 'Gram';
+  } else if (norm.includes('maize') || norm.includes('makka') || norm.includes('मका') || norm.includes('मक्का')) {
+    targetCrop = 'Maize';
+  } else if (norm.includes('tomato') || norm.includes('टोमॅटो') || norm.includes('टमाटर')) {
+    targetCrop = 'Tomato';
+  }
+
+  let targetDistrict = defaultDistrict;
+  const districts = [
+    { key: 'parbhani', name: 'Parbhani' },
+    { key: 'परभणी', name: 'Parbhani' },
+    { key: 'nanded', name: 'Nanded' },
+    { key: 'नांदेड', name: 'Nanded' },
+    { key: 'latur', name: 'Latur' },
+    { key: 'लातूर', name: 'Latur' },
+    { key: 'jalna', name: 'Jalna' },
+    { key: 'जालना', name: 'Jalna' },
+    { key: 'akola', name: 'Akola' },
+    { key: 'अकोला', name: 'Akola' },
+    { key: 'amravati', name: 'Amravati' },
+    { key: 'अमरावती', name: 'Amravati' },
+    { key: 'yavatmal', name: 'Yavatmal' },
+    { key: 'यवतमाळ', name: 'Yavatmal' },
+    { key: 'buldhana', name: 'Buldhana' },
+    { key: 'बुलढाणा', name: 'Buldhana' },
+    { key: 'nashik', name: 'Nashik' },
+    { key: 'नाशिक', name: 'Nashik' },
+    { key: 'pune', name: 'Pune' },
+    { key: 'पुणे', name: 'Pune' },
+    { key: 'nagpur', name: 'Nagpur' },
+    { key: 'नागपूर', name: 'Nagpur' },
+    { key: 'kolhapur', name: 'Kolhapur' },
+    { key: 'कोल्हापूर', name: 'Kolhapur' },
+    { key: 'solapur', name: 'Solapur' },
+    { key: 'सोलापूर', name: 'Solapur' },
+    { key: 'chandrapur', name: 'Chandrapur' },
+    { key: 'चंद्रपूर', name: 'Chandrapur' }
+  ];
+
+  for (const d of districts) {
+    if (norm.includes(d.key)) {
+      targetDistrict = d.name;
+      break;
+    }
+  }
+
+  return { targetCrop, targetDistrict };
+}
+
 // ==========================================
 // Conversational AI Advisory Chat
 // ==========================================
@@ -500,9 +564,11 @@ router.post('/advisory/chat', authenticate, async (req: AuthRequest, res: Respon
     if (!crop && farm) crop = memoryStore.crops.find(c => c.farmId.toString() === farm._id.toString());
 
     const { question, language, cropName } = req.body;
-    const activeCrop = cropName || crop?.cropName || 'Soybean';
+    const defaultCrop = cropName || crop?.cropName || 'Soybean';
     const lang = language || req.user?.preferredLanguage || 'mr';
-    const district = farm?.district || 'Latur';
+    const defaultDistrict = farm?.district || 'Latur';
+
+    const { targetCrop, targetDistrict } = parseQuestionEntities(question || '', defaultCrop, defaultDistrict);
 
     // Fast Greeting Response
     const cleanQ = (question || '').trim().toLowerCase();
@@ -510,9 +576,9 @@ router.post('/advisory/chat', authenticate, async (req: AuthRequest, res: Respon
     
     if (commonGreetings.includes(cleanQ)) {
       const greetingTexts = {
-        mr: `राम राम ${user?.name || 'शेतकरी मित्र'}! मी कृषीसारथी AI आहे. आपल्या ${district} येथील ${activeCrop} पिकाचे संरक्षण, आगामी पाऊस आणि आजच्या बाजारभावाबाबत संपूर्ण सल्ला देण्यासाठी मी सज्ज आहे. आपण काय विचारू इच्छिता?`,
-        hi: `नमस्ते ${user?.name || 'किसान साथी'}! मैं कृषिसारथी AI हूँ। आपके ${district} क्षेत्र की ${activeCrop} फसल, मौसम चेतावनी और मंडी भाव के बारे में सहायता के लिए मैं तैयार हूँ। आप क्या जानना चाहते हैं?`,
-        en: `Hello ${user?.name || 'Farmer'}! I am AgriSaarthi AI, your personalized agronomist. I am ready to guide you on crop protection for ${activeCrop}, local rainfall risks, and APMC mandi rates. How can I help you today?`
+        mr: `राम राम ${user?.name || 'शेतकरी मित्र'}! मी कृषीसारथी AI आहे. आपल्या ${defaultDistrict} येथील ${defaultCrop} पिकाचे संरक्षण, आगामी पाऊस आणि आजच्या बाजारभावाबाबत संपूर्ण सल्ला देण्यासाठी मी सज्ज आहे. आपण काय विचारू इच्छिता?`,
+        hi: `नमस्ते ${user?.name || 'किसान साथी'}! मैं कृषिसारथी AI हूँ। आपके ${defaultDistrict} क्षेत्र की ${defaultCrop} फसल, मौसम चेतावनी और मंडी भाव के बारे में सहायता के लिए मैं तैयार हूँ। आप क्या जानना चाहते हैं?`,
+        en: `Hello ${user?.name || 'Farmer'}! I am AgriSaarthi AI, your personalized agronomist. I am ready to guide you on crop protection for ${defaultCrop}, local rainfall risks, and APMC mandi rates. How can I help you today?`
       };
 
       const greetingAnswer = greetingTexts[lang as 'mr'|'hi'|'en'] || greetingTexts.mr;
@@ -520,7 +586,7 @@ router.post('/advisory/chat', authenticate, async (req: AuthRequest, res: Respon
         answer: greetingAnswer,
         structuredAdvice: {
           directAnswer: greetingAnswer,
-          relevantDataUsed: [`Farm: ${district}`, `Crop: ${activeCrop}`],
+          relevantDataUsed: [`Farm: ${defaultDistrict}`, `Crop: ${defaultCrop}`],
           identifiedRisk: 'No current risks on general greeting',
           riskLevel: 'LOW',
           recommendedActions: [
@@ -540,15 +606,15 @@ router.post('/advisory/chat', authenticate, async (req: AuthRequest, res: Respon
       });
     }
 
-    // Full Agronomic Question Processing
+    // Full Agronomic Question Processing with entity-aware routing
     const agent = new AgriculturalAdvisoryAgent();
     const result = await agent.runWorkflow({
       userId: userId!,
       farmId: farm ? farm._id.toString() : `farm_${Date.now()}`,
       farmerName: user?.name || 'Farmer',
       language: lang,
-      cropName: activeCrop,
-      district,
+      cropName: targetCrop,
+      district: targetDistrict,
       question
     });
 

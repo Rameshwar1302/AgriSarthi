@@ -40,6 +40,23 @@ export interface MandiComparisonResult {
 const mandiCache = new Map<string, { timestamp: number; data: MandiRecord[] }>();
 const CACHE_TTL_MS = 60 * 60 * 1000; // 1 hour
 
+export function getAgmarknetAliases(commodity: string): string[] {
+  const norm = (commodity || '').trim().toLowerCase();
+  if (norm.includes('soy') || norm.includes('सोया')) return ['Soyabean', 'Soybean'];
+  if (norm.includes('cotton') || norm.includes('kapas') || norm.includes('कापूस') || norm.includes('कपास')) return ['Cotton'];
+  if (norm.includes('onion') || norm.includes('kanda') || norm.includes('कांदा') || norm.includes('प्याज')) return ['Onion'];
+  if (norm.includes('wheat') || norm.includes('gehun') || norm.includes('गहू') || norm.includes('गेहूँ')) return ['Wheat'];
+  if (norm.includes('tur') || norm.includes('arhar') || norm.includes('तूर') || norm.includes('अरहर')) return ['Red gram/Arhar/Tur(whole)', 'Tur (Arhar)'];
+  if (norm.includes('gram') || norm.includes('chana') || norm.includes('harbhara') || norm.includes('हरभरा') || norm.includes('चना')) return ['Bengal Gram(Gram)(Whole)', 'Gram Raw(Chhana)'];
+  if (norm.includes('maize') || norm.includes('makka') || norm.includes('मका') || norm.includes('मक्का')) return ['Maize'];
+  if (norm.includes('bajra') || norm.includes('बाजरी')) return ['Bajra(Pearl Millet/Cumbu)'];
+  if (norm.includes('paddy') || norm.includes('rice') || norm.includes('भात') || norm.includes('चावल')) return ['Paddy(Common)', 'Rice'];
+  if (norm.includes('tomato') || norm.includes('टोमॅटो') || norm.includes('टमाटर')) return ['Tomato'];
+  if (norm.includes('chilli') || norm.includes('मिरची') || norm.includes('मिर्च')) return ['Green Chilli'];
+  if (norm.includes('garlic') || norm.includes('लसूण') || norm.includes('लहसुन')) return ['Garlic'];
+  return [commodity];
+}
+
 export async function getMandiPrices(
   commodity: string = 'Soybean',
   state: string = 'Maharashtra',
@@ -54,25 +71,29 @@ export async function getMandiPrices(
   // Attempt live data.gov.in AGMARKNET API call if API key configured
   if (env.DATA_GOV_IN_API_KEY) {
     try {
-      const url = `https://api.data.gov.in/resource/${env.AGMARKNET_RESOURCE_ID}?api-key=${env.DATA_GOV_IN_API_KEY}&format=json&filters[commodity]=${encodeURIComponent(commodity)}&filters[state]=${encodeURIComponent(state)}`;
-      const response = await axios.get(url, { timeout: 5000 });
-      if (response.data?.records && Array.isArray(response.data.records) && response.data.records.length > 0) {
-        records = response.data.records.map((r: any) => ({
-          commodity: r.commodity || commodity,
-          state: r.state || state,
-          district: r.district || 'Maharashtra',
-          market: r.market || 'APMC',
-          minPrice: Number(r.min_price) || 4000,
-          maxPrice: Number(r.max_price) || 4700,
-          modalPrice: Number(r.modal_price) || 4500,
-          unit: 'Rs/Quintal',
-          arrivalDate: r.arrival_date || new Date().toISOString().split('T')[0],
-          source: 'data.gov.in AGMARKNET (Live API)',
-          isDemo: false,
-          fetchedAt: new Date().toISOString(),
-        }));
-        isLive = true;
-        mandiCache.set(cacheKey, { timestamp: Date.now(), data: records });
+      const aliases = getAgmarknetAliases(commodity);
+      for (const alias of aliases) {
+        const url = `https://api.data.gov.in/resource/${env.AGMARKNET_RESOURCE_ID}?api-key=${env.DATA_GOV_IN_API_KEY}&format=json&filters[commodity]=${encodeURIComponent(alias)}&filters[state]=${encodeURIComponent(state)}&limit=100`;
+        const response = await axios.get(url, { timeout: 6000 });
+        if (response.data?.records && Array.isArray(response.data.records) && response.data.records.length > 0) {
+          records = response.data.records.map((r: any) => ({
+            commodity: r.commodity || commodity,
+            state: r.state || state,
+            district: r.district || 'Maharashtra',
+            market: r.market || 'APMC',
+            minPrice: Number(r.min_price) || 4000,
+            maxPrice: Number(r.max_price) || 4700,
+            modalPrice: Number(r.modal_price) || 4500,
+            unit: 'Rs/Quintal',
+            arrivalDate: r.arrival_date || new Date().toISOString().split('T')[0],
+            source: 'data.gov.in AGMARKNET (Live API)',
+            isDemo: false,
+            fetchedAt: new Date().toISOString(),
+          }));
+          isLive = true;
+          mandiCache.set(cacheKey, { timestamp: Date.now(), data: records });
+          break;
+        }
       }
     } catch (err: any) {
       console.warn(`[MandiService] data.gov.in live fetch error: ${err.message}. Resorting to verified AGMARKNET demo repository.`);
@@ -101,24 +122,27 @@ export async function getMandiPrices(
   }
 
   // Filter by district if requested
+  let districtMatched = false;
+  let finalRecords = records;
   if (district && district !== 'All') {
     const districtFiltered = records.filter(
       (r) => r.district.toLowerCase() === district.toLowerCase()
     );
     if (districtFiltered.length > 0) {
-      records = districtFiltered;
+      finalRecords = districtFiltered;
+      districtMatched = true;
     }
   }
 
   // Calculate comparisons
-  const modalPrices = records.map((r) => r.modalPrice).filter((p) => p > 0);
+  const modalPrices = finalRecords.map((r) => r.modalPrice).filter((p) => p > 0);
   const avg = modalPrices.length > 0 ? Math.round(modalPrices.reduce((a, b) => a + b, 0) / modalPrices.length) : 0;
 
   let highestMandi: MandiComparisonResult['highestModalMandi'] = null;
   let lowestMandi: MandiComparisonResult['lowestModalMandi'] = null;
 
-  if (records.length > 0) {
-    const sorted = [...records].sort((a, b) => b.modalPrice - a.modalPrice);
+  if (finalRecords.length > 0) {
+    const sorted = [...finalRecords].sort((a, b) => b.modalPrice - a.modalPrice);
     const highest = sorted[0];
     const lowest = sorted[sorted.length - 1];
 
@@ -138,17 +162,22 @@ export async function getMandiPrices(
 
   const historical = SEED_MANDI_HISTORICAL[commodity] || SEED_MANDI_HISTORICAL['Soybean'];
 
+  let sourceNote = isLive
+    ? 'Live data pulled from Government of India data.gov.in AGMARKNET'
+    : 'Clearly labelled AGMARKNET Benchmark Dataset (Demo Mode Active)';
+
+  if (district && district !== 'All' && !districtMatched) {
+    sourceNote += ` • Note: Direct arrivals were not recorded today specifically at ${district} APMC; showing regional Maharashtra benchmarks.`;
+  }
+
   return {
     commodity,
-    records,
+    records: finalRecords,
     highestModalMandi: highestMandi,
     lowestModalMandi: lowestMandi,
     averageModalPrice: avg,
     historicalTrends: historical,
-    sourceNote: isLive
-      ? 'Live data pulled from Government of India data.gov.in AGMARKNET'
-      : 'Clearly labelled AGMARKNET Benchmark Dataset (Demo Mode Active)',
+    sourceNote,
     status: isLive ? 'live' : cached ? 'cached' : 'demo_dataset',
   };
 }
-

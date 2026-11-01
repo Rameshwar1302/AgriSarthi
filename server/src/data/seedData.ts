@@ -387,6 +387,32 @@ export const SEED_MANDI_PRICES = [
   {
     commodity: 'Cotton',
     state: 'Maharashtra',
+    district: 'Parbhani',
+    market: 'Parbhani APMC',
+    minPrice: 8850,
+    maxPrice: 9250,
+    modalPrice: 9050,
+    unit: 'Rs/Quintal',
+    arrivalDate: '2026-11-01',
+    source: 'AGMARKNET (Parbhani APMC Live)',
+    isDemo: false
+  },
+  {
+    commodity: 'Cotton',
+    state: 'Maharashtra',
+    district: 'Nanded',
+    market: 'Bhokar APMC Nanded',
+    minPrice: 9050,
+    maxPrice: 9100,
+    modalPrice: 9070,
+    unit: 'Rs/Quintal',
+    arrivalDate: '2026-11-01',
+    source: 'data.gov.in AGMARKNET (Live API)',
+    isDemo: false
+  },
+  {
+    commodity: 'Cotton',
+    state: 'Maharashtra',
     district: 'Yavatmal',
     market: 'Yavatmal APMC',
     minPrice: 7100,

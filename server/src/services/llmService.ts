@@ -34,6 +34,9 @@ export interface AdvisoryPayload {
     currentModalPrice: number;
     bestMandi: string;
     bestPrice: number;
+    mandiRecords?: string[];
+    sourceNote?: string;
+    status?: string;
   };
   evaluatedRisks: EvaluatedRisk[];
   question?: string;
@@ -72,8 +75,9 @@ ${languageInstruction}
 
 Strict Agricultural Guardrails:
 1. Ground all answers strictly in the provided environmental, soil, and market data.
-2. DO NOT hallucinate or invent unlisted chemical dosages or pesticide formulations. For chemical treatments, mention generic approved measures and advise consulting the local Krishi Vigyan Kendra (KVK).
-3. Do NOT make definitive 'sell now or never' market guarantees. Present available modal prices and trends objectively.
+2. If the farmer asks about market rates or mandi prices for a commodity (e.g. Cotton, Soybean, Onion, Wheat), answer directly citing the specific market/APMC names, modal prices, min/max prices, and date from the provided mandi records. If no direct arrival is listed for the exact town today, report the latest live rates from neighboring APMCs in the state (e.g., Nanded, Buldhana, Chandrapur). Do not add unrelated spraying or weather alerts unless asked.
+3. DO NOT hallucinate or invent unlisted chemical dosages or pesticide formulations. For chemical treatments, mention generic approved measures and advise consulting the local Krishi Vigyan Kendra (KVK).
+4. Do NOT make definitive 'sell now or never' market guarantees. Present available modal prices and trends objectively.
 4. Output strictly valid JSON matching this schema:
 {
   "directAnswer": "Concise summary answer for the farmer",

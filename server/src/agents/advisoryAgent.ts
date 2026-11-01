@@ -297,7 +297,10 @@ export class AgriculturalAdvisoryAgent {
         commodity: cropName,
         currentModalPrice: mandi.averageModalPrice,
         bestMandi: mandi.highestModalMandi?.market || `${district} Mandi`,
-        bestPrice: mandi.highestModalMandi?.modalPrice || 4580
+        bestPrice: mandi.highestModalMandi?.modalPrice || 4580,
+        mandiRecords: mandi.records.slice(0, 6).map(r => `${r.market} (${r.district}): Modal ₹${r.modalPrice}/Q (Min: ₹${r.minPrice}, Max: ₹${r.maxPrice}) on ${r.arrivalDate} [${r.source}]`),
+        sourceNote: mandi.sourceNote,
+        status: mandi.status
       },
       evaluatedRisks,
       question: params.question
